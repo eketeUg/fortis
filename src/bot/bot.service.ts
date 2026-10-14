@@ -28,8 +28,12 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   async onModuleInit() {
-    this.botToken = process.env.TELEGRAM_BOT_TOKEN || '';
-    this.webAppUrl = process.env.TELEGRAM_WEBAPP_URL || 'http://localhost:3000';
+    this.botToken = (process.env.TELEGRAM_BOT_TOKEN || '').trim();
+    let url = (process.env.TELEGRAM_WEBAPP_URL || 'http://localhost:3000').trim();
+    if ((url.startsWith("'") && url.endsWith("'")) || (url.startsWith('"') && url.endsWith('"'))) {
+      url = url.slice(1, -1).trim();
+    }
+    this.webAppUrl = url.replace(/\/$/, '');
 
     if (!this.botToken) {
       this.logger.warn(

@@ -214,7 +214,7 @@
         });
       });
 
-      await fetch('/api/progress/sync', {
+      const res = await fetch('/api/progress/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -226,7 +226,16 @@
           completedItems: completedMap
         })
       });
-    } catch (e) {}
+
+      if (!res.ok) {
+        console.error(`❌ [SYNC FAILED] HTTP ${res.status}: ${res.statusText}`);
+      } else {
+        const data = await res.json();
+        console.log(`✅ [SYNC SUCCESS] Saved for ${currentUserId} (${data.totalWorkoutsCompleted} workouts finished)`);
+      }
+    } catch (e) {
+      console.error('❌ [SYNC NETWORK ERROR]', e);
+    }
   }
 
   // Toggle item completion
@@ -569,7 +578,7 @@
 
     // Sync to NestJS backend
     try {
-      await fetch('/api/progress/weight', {
+      const res = await fetch('/api/progress/weight', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -578,7 +587,14 @@
           weight: val
         })
       });
-    } catch (e) {}
+      if (!res.ok) {
+        console.error(`❌ [WEIGHT SYNC FAILED] HTTP ${res.status}: ${res.statusText}`);
+      } else {
+        console.log(`✅ [WEIGHT SYNC SUCCESS] Logged ${val} kg for ${currentUserId}`);
+      }
+    } catch (e) {
+      console.error('❌ [WEIGHT SYNC NETWORK ERROR]', e);
+    }
   };
 
   window.deleteWeight = async function (date) {
@@ -590,8 +606,15 @@
     renderWeightView();
 
     try {
-      await fetch(`/api/progress/${currentUserId}/weight/${date}`, { method: 'DELETE' });
-    } catch (e) {}
+      const res = await fetch(`/api/progress/${currentUserId}/weight/${date}`, { method: 'DELETE' });
+      if (!res.ok) {
+        console.error(`❌ [DELETE WEIGHT FAILED] HTTP ${res.status}: ${res.statusText}`);
+      } else {
+        console.log(`✅ [DELETE WEIGHT SUCCESS] Removed ${date} for ${currentUserId}`);
+      }
+    } catch (e) {
+      console.error('❌ [DELETE WEIGHT NETWORK ERROR]', e);
+    }
   };
 
   function drawWeightChart() {
@@ -945,17 +968,38 @@
     } catch (e) {}
   };
 
-  async function loadNotificationPreference() {
+  async function loadServerUserData() {
     try {
       const res = await fetch(`/api/progress/${currentUserId}`);
       if (res.ok) {
         const data = await res.json();
+        console.log(`📥 [CLOUD SYNC] Retrieved progress for athlete ${currentUserId}:`, data);
+
+        // 1. Sync notifications preference
         const checkbox = document.getElementById('notifToggleCheckbox');
         if (checkbox) {
           checkbox.checked = data.notificationsEnabled !== false;
         }
+
+        // 2. Hydrate completed workout items from backend/MongoDB
+        if (data.completedItems && typeof data.completedItems === 'object') {
+          for (const [k, v] of Object.entries(data.completedItems)) {
+            if (v) {
+              localStorage.setItem(k, '1');
+            } else {
+              localStorage.removeItem(k);
+            }
+          }
+        }
+
+        // 3. Re-render UI views with refreshed data
+        renderWorkoutsView();
+        renderConsistencyView();
+      } else {
+        console.warn(`⚠️ [CLOUD SYNC] Server returned HTTP ${res.status}: ${res.statusText}`);
       }
     } catch (e) {
+      console.warn('⚠️ [PROGRESS SYNC] Running in offline / local cache mode:', e);
       const local = localStorage.getItem(`fortis_notif_${currentUserId}`);
       const checkbox = document.getElementById('notifToggleCheckbox');
       if (checkbox && local !== null) {
@@ -991,7 +1035,7 @@
   window.addEventListener('DOMContentLoaded', async () => {
     recordMiniAppLaunch();
     await loadWeightData();
-    await loadNotificationPreference();
+    await loadServerUserData();
     switchTab(activeTab);
     syncToServer();
   });

@@ -34,7 +34,14 @@ export class ProgressService implements OnModuleInit {
   }
 
   private async connectMongo() {
-    const uri = process.env.MONGO_URI;
+    let uri = (process.env.MONGO_URI || '').trim();
+    if (
+      (uri.startsWith("'") && uri.endsWith("'")) ||
+      (uri.startsWith('"') && uri.endsWith('"'))
+    ) {
+      uri = uri.slice(1, -1).trim();
+    }
+
     if (!uri) {
       this.logger.warn(
         'ℹ️ MONGO_URI not provided. ProgressService using local file persistence.',
@@ -43,15 +50,18 @@ export class ProgressService implements OnModuleInit {
     }
 
     try {
-      await mongoose.connect(uri);
+      this.logger.log('🍃 Connecting to MongoDB Atlas...');
+      await mongoose.connect(uri, { serverSelectionTimeoutMS: 8000 });
       this.isMongoConnected = true;
       this.logger.log(
         '🍃 Connected to MongoDB successfully. Loading cloud user data...',
       );
       await this.loadFromMongo();
     } catch (err) {
+      this.isMongoConnected = false;
       this.logger.error(
-        `Failed to connect to MongoDB: ${err.message}. Falling back to disk storage.`,
+        `❌ Failed to connect to MongoDB: ${err.message}. Running in local disk fallback mode! ` +
+          `(IMPORTANT: If deploying to a VPS, ensure the VPS public IP or 0.0.0.0/0 is whitelisted in MongoDB Atlas Network Access).`,
       );
     }
   }
@@ -106,7 +116,12 @@ export class ProgressService implements OnModuleInit {
   }
 
   private async persistUserToMongo(user: UserProgress) {
-    if (!this.isMongoConnected) return;
+    if (!this.isMongoConnected) {
+      this.logger.warn(
+        `⚠️ [MONGO DISCONNECTED] Skipping cloud database save for user ${user.telegramId}. App is running in local disk fallback mode!`,
+      );
+      return;
+    }
     try {
       const model = getUserProgressModel();
       const completedMap = new Map<string, boolean>();
@@ -301,11 +316,26 @@ export class ProgressService implements OnModuleInit {
       user.notificationsEnabled = dto.notificationsEnabled;
     }
 
-    // Merge completed items
-    user.completedItems = {
-      ...user.completedItems,
-      ...dto.completedItems,
-    };
+    // Replace items for the current week so unchecking works, while preserving items from other weeks
+    if (dto.weekKey) {
+      const updatedItems: Record<string, boolean> = {};
+      for (const [key, value] of Object.entries(user.completedItems || {})) {
+        if (!key.startsWith(dto.weekKey)) {
+          updatedItems[key] = value;
+        }
+      }
+      for (const [key, value] of Object.entries(dto.completedItems || {})) {
+        if (value) {
+          updatedItems[key] = true;
+        }
+      }
+      user.completedItems = updatedItems;
+    } else {
+      user.completedItems = {
+        ...user.completedItems,
+        ...dto.completedItems,
+      };
+    }
 
     // Calculate streak
     if (dto.markActive !== false) {
@@ -335,6 +365,10 @@ export class ProgressService implements OnModuleInit {
     this.userStore.set(id, user);
     this.saveToDisk();
     this.persistUserToMongo(user);
+
+    this.logger.log(
+      `📥 [SYNC SUCCESS] Athlete ${id} progress saved (${user.totalWorkoutsCompleted} workouts finished, streak: ${user.streak})`,
+    );
 
     return user;
   }
@@ -376,6 +410,9 @@ export class ProgressService implements OnModuleInit {
 
     this.saveToDisk();
     this.persistUserToMongo(user);
+    this.logger.log(
+      `⚖️ [WEIGHT LOGGED] Athlete ${dto.telegramId} logged ${roundedWeight} kg for ${date}`,
+    );
     return user.weightHistory;
   }
 

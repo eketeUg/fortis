@@ -26,6 +26,12 @@ export class ProgressController {
     return this.progressService.getUserProgress(telegramId);
   }
 
+  @Delete(':telegramId')
+  async deleteUser(@Param('telegramId') telegramId: string) {
+    await this.progressService.deleteUser(telegramId);
+    return { ok: true, message: `User ${telegramId} completely deleted.` };
+  }
+
   @Get(':telegramId/stats')
   getStats(
     @Param('telegramId') telegramId: string,

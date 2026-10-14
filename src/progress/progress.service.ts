@@ -60,6 +60,8 @@ export class ProgressService implements OnModuleInit {
     try {
       const model = getUserProgressModel();
       const docs = await model.find().exec();
+      // Clear in-memory store so deleted MongoDB users are completely purged from RAM & disk
+      this.userStore.clear();
       for (const doc of docs) {
         const completedObj: Record<string, boolean> = {};
         if (doc.completedItems) {
@@ -386,6 +388,27 @@ export class ProgressService implements OnModuleInit {
     this.saveToDisk();
     this.persistUserToMongo(user);
     return user.weightHistory;
+  }
+
+  async deleteUser(telegramId: string): Promise<boolean> {
+    const id = telegramId || 'guest';
+    this.userStore.delete(id);
+    this.saveToDisk();
+
+    if (this.isMongoConnected) {
+      try {
+        const model = getUserProgressModel();
+        await model.deleteOne({ telegramId: id }).exec();
+        this.logger.log(
+          `🗑️ User ${id} permanently deleted from MongoDB and local storage.`,
+        );
+      } catch (err: any) {
+        this.logger.warn(
+          `Failed to delete user ${id} from MongoDB: ${err.message}`,
+        );
+      }
+    }
+    return true;
   }
 
   resetWeek(telegramId: string): UserProgress {

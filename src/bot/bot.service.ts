@@ -316,6 +316,20 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       await this.sendReminderSettings(chatId, userId);
     } else if (text.startsWith('/testreminder')) {
       await this.sendTestReminder(chatId, userId);
+    } else if (
+      text.startsWith('/resetprofile') ||
+      text.startsWith('/resetdata') ||
+      text.startsWith('/deleteprofile')
+    ) {
+      await this.progressService.deleteUser(userId);
+      await this.telegramApi('sendMessage', {
+        chat_id: chatId,
+        text:
+          `🗑️ *Profile Reset Complete!*\n\n` +
+          `All your workout checkmarks, streak history, and weight records have been permanently wiped from the database.\n\n` +
+          `Send /start anytime to begin fresh with a clean slate!`,
+        parse_mode: 'Markdown',
+      });
     } else if (text.startsWith('/help')) {
       await this.sendHelpMessage(chatId);
     }
@@ -843,6 +857,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       `/weight - View weight history & weight delta\n` +
       `/progress - View weekly set completion rates\n` +
       `/testreminder - Test the 5am/7pm reminder notification\n` +
+      `/resetprofile - Wipe all your history & weight data to start fresh\n` +
       `/help - Show this guide\n\n` +
       `You can also tap the *FORTIS App* menu button in the chat anytime!`;
 

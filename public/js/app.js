@@ -469,9 +469,15 @@
       const res = await fetch(`/api/progress/${currentUserId}/weight`);
       if (res.ok) {
         weightHistory = await res.json();
+        if (weightHistory && weightHistory.length > 0) {
+          localStorage.setItem(`fortis_weight_${currentUserId}`, JSON.stringify(weightHistory));
+        } else {
+          localStorage.removeItem(`fortis_weight_${currentUserId}`);
+        }
+        return;
       }
     } catch (e) {
-      // Fallback to local storage
+      // Fallback to local storage only if offline/network fails
       const local = localStorage.getItem(`fortis_weight_${currentUserId}`);
       if (local) {
         weightHistory = JSON.parse(local);

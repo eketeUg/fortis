@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>FORTIS — Strength Through Discipline</title>
+
+  <!-- Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- App Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dark">
+
+  <!-- Sticky App Header with FORTIS Crest -->
+  <header class="app-header">
+    <div class="top-bar">
+      <div class="user-profile">
+        <img src="assets/logo.png" alt="FORTIS Crest" class="app-logo-badge" />
+        <div class="brand-text">
+          <h1>FORTIS</h1>
+          <p>Strength Through Discipline</p>
+        </div>
+      </div>
+      <div class="stats-badges">
+        <div class="streak-pill">
+          <span class="streak-icon">🔥</span>
+          <span id="streakCount">Active</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Switcher (Training | Weight | Consistency) -->
+    <nav class="view-nav">
+      <button class="view-nav-btn active" data-tab="workouts" onclick="switchTab('workouts')">
+        🏋️ Training
+      </button>
+      <button class="view-nav-btn" data-tab="weight" onclick="switchTab('weight')">
+        ⚖️ Weight (kg)
+      </button>
+      <button class="view-nav-btn" data-tab="consistency" onclick="switchTab('consistency')">
+        📊 Consistency
+      </button>
+    </nav>
+
+    <!-- Overall Discipline Progress -->
+    <div class="progress-container">
+      <div class="progress-info">
+        <span id="sessionTitle">WEEKLY PROTOCOL</span>
+        <span id="progressText">0% DISCIPLINE</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressBar"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==============================================
+       TAB 1: WORKOUTS & TRAINING PROTOCOL
+  ============================================== -->
+  <section id="tab-workouts" class="tab-content active">
+    <!-- Days Navigation Carousel -->
+    <div class="days-wrapper">
+      <div class="days-nav" id="daysNav"></div>
+    </div>
+
+    <!-- Morning vs Evening Segmented Control -->
+    <div class="session-segmented-wrapper">
+      <div class="segmented-control">
+        <button class="seg-button active" id="btnMorning" onclick="selectSession('am')">
+          🌅 Morning <span class="seg-count" id="countAm">0/11</span>
+        </button>
+        <button class="seg-button" id="btnEvening" onclick="selectSession('pm')">
+          🌙 Evening <span class="seg-count" id="countPm">0/10</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Session Banner Summary -->
+    <div class="session-banner" id="sessionBanner"></div>
+
+    <!-- Exercises Dynamic List -->
+    <main class="workout-list" id="workoutList"></main>
+
+    <!-- Reset Week Link -->
+    <div style="text-align: center; margin: 24px 0 30px;">
+      <button onclick="resetCurrentWeek()" style="background:none; border:none; color:var(--text-muted); font-size:12px; text-decoration:underline; cursor:pointer;">
+        🔄 Reset current week checkmarks
+      </button>
+    </div>
+  </section>
+
+  <!-- ==============================================
+       TAB 2: DAILY WEIGHT TRACKER (kg)
+  ============================================== -->
+  <section id="tab-weight" class="tab-content">
+    <div class="weight-screen">
+      <!-- Current Weight Hero Card -->
+      <div class="weight-hero-card">
+        <div class="weight-hero-label">CURRENT BODY WEIGHT</div>
+        <div class="weight-hero-val" id="weightHeroVal">--.- <span>KG</span></div>
+        <div class="weight-hero-sub" id="weightHeroSub">Input your daily weigh-in below</div>
+      </div>
+
+      <!-- Quick Weight Logger Form -->
+      <div class="weight-input-card">
+        <div style="font-size:12px; font-weight:800; color:var(--gold-primary); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:12px; text-align:center;">
+          Log Today's Weight (KG)
+        </div>
+        <div class="weight-stepper-row">
+          <button class="stepper-btn" onclick="adjustWeightInput(-0.5)">-0.5</button>
+          <button class="stepper-btn" onclick="adjustWeightInput(-0.1)">-0.1</button>
+          <input type="number" step="0.1" id="weightInputVal" class="weight-number-input" placeholder="78.0" />
+          <button class="stepper-btn" onclick="adjustWeightInput(+0.1)">+0.1</button>
+          <button class="stepper-btn" onclick="adjustWeightInput(+0.5)">+0.5</button>
+        </div>
+        <button class="weight-log-btn" onclick="submitWeight()">
+          ⚖️ Confirm & Save Weight
+        </button>
+      </div>
+
+      <!-- Interactive Weight Trend Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">📈 Weight Trajectory (14 Days)</span>
+        </div>
+        <div id="weightChartContainer"></div>
+      </div>
+
+      <!-- Recent Log Entries -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Recent Weigh-ins</span>
+        </div>
+        <ul class="weight-history-list" id="weightHistoryList"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==============================================
+       TAB 3: CONSISTENCY & ANALYTICS
+  ============================================== -->
+  <section id="tab-consistency" class="tab-content">
+    <div class="consistency-screen">
+      <div class="streak-hero">
+        <div style="font-size:12px; font-weight:800; color:var(--gold-primary); letter-spacing:1px; text-transform:uppercase;">
+          Weekly Discipline Rate
+        </div>
+        <h2 id="consistencyRateVal">0%</h2>
+        <div id="consistencyDrillsCount" style="font-size:13px; color:var(--text-secondary); margin-top:4px;">
+          0 / 84 Drills Finished
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">📅 7-Day Consistency Matrix</span>
+        </div>
+        <div class="consistency-grid" id="consistencyGrid"></div>
+        <div style="display:flex; justify-content:center; gap:16px; font-size:11px; color:var(--text-secondary); margin-top:8px;">
+          <span>🟡 Morning Session</span>
+          <span>🟢 Evening Session</span>
+          <span>✨ Full Day</span>
+        </div>
+      </div>
+
+      <!-- Motto Banner -->
+      <div class="workout-note" style="text-align:center; font-style:italic;">
+        "We are what we repeatedly do. Excellence, then, is not an act, but a habit."
+        <div style="margin-top:6px; font-weight:800; font-style:normal; color:var(--gold-primary);">
+          — FORTIS • STRENGTH THROUGH DISCIPLINE —
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Floating Bottom Quick-Action Dock (Only active on Workouts tab) -->
+  <div class="bottom-dock">
+    <button class="dock-btn secondary" onclick="quickRestTimer(60)">
+      ⏱️ Rest (60s)
+    </button>
+    <button class="dock-btn secondary" onclick="quickRestTimer(75)">
+      ⏱️ Rest (75s)
+    </button>
+    <button class="dock-btn primary" onclick="markSessionCompleted()">
+      ✅ Finish Session
+    </button>
+  </div>
+
+  <!-- Exercise Detail & Form Guide Modal Sheet -->
+  <div class="modal-overlay" id="exerciseModal">
+    <div class="modal-sheet">
+      <div class="sheet-handle"></div>
+      
+      <div class="sheet-header">
+        <div class="sheet-title">
+          <h2 id="modalTitle">Goblet Squat</h2>
+          <p id="modalSubtitle">Form & execution cues</p>
+        </div>
+        <button class="close-btn" onclick="closeExerciseModal()" aria-label="Close modal">✕</button>
+      </div>
+
+      <!-- High-Def Vector Illustration Stage -->
+      <div class="illustration-stage" id="modalIllustrationStage"></div>
+
+      <!-- Muscle & Equipment Chips -->
+      <div class="muscle-chips" id="modalMuscleChips"></div>
+
+      <!-- Interactive Timer Card -->
+      <div class="timer-card">
+        <div class="timer-display">
+          <span class="timer-label">Rest / Interval Timer</span>
+          <span class="timer-digits" id="timerDigits">01:00</span>
+        </div>
+        <div class="timer-actions">
+          <button class="timer-btn start" id="timerStartBtn" onclick="startTimer()">Start</button>
+          <button class="timer-btn reset" onclick="resetTimer(30)">30s</button>
+          <button class="timer-btn reset" onclick="resetTimer(60)">60s</button>
+          <button class="timer-btn reset" onclick="resetTimer(75)">75s</button>
+        </div>
+      </div>
+
+      <!-- Execution Steps -->
+      <div class="guide-section">
+        <div class="guide-heading">How to Perform</div>
+        <ol class="steps-list" id="modalStepsList"></ol>
+      </div>
+
+      <!-- Common Mistakes Warning -->
+      <div class="mistake-box" id="modalMistakes" style="margin-top: 14px;"></div>
+    </div>
+  </div>
+
+  <!-- Client-side Scripts -->
+  <script src="js/illustrations.js"></script>
+  <script src="js/exercises-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

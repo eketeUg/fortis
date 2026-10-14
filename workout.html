@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Weekly workout guide</title>
+    <style>
+        :root {
+            --acc: #0a84ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+        }
+
+        body {
+            font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f7;
+            color: #111;
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 12px;
+        }
+
+        h1 {
+            font-size: 20px;
+            font-weight: 600;
+            padding: 8px 4px;
+        }
+
+        .prog {
+            height: 6px;
+            background: #ddd;
+            border-radius: 99px;
+            overflow: hidden;
+            margin: 4px 4px 12px;
+        }
+
+        .prog>div {
+            height: 100%;
+            background: var(--acc);
+            width: 0%;
+            transition: width .3s;
+        }
+
+        .days {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .days button {
+            flex: 1;
+            padding: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: #fff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .days button.on {
+            background: #111;
+            color: #fff;
+            border-color: #111;
+        }
+
+        .seg {
+            display: flex;
+            background: #e3e3e6;
+            border-radius: 10px;
+            padding: 3px;
+            margin-bottom: 12px;
+        }
+
+        .seg button {
+            flex: 1;
+            padding: 9px 0;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            font-weight: 600;
+            cursor: pointer;
+            color: #555;
+        }
+
+        .seg button.on {
+            background: #fff;
+            color: #111;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .15);
+        }
+
+        .sec {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #777;
+            margin: 16px 4px 6px;
+        }
+
+        .card {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            background: #fff;
+            border: 1px solid #e2e2e5;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+
+        .card.done {
+            opacity: .55;
+        }
+
+        .card.done .nm {
+            text-decoration: line-through;
+        }
+
+        .ck {
+            width: 26px;
+            height: 26px;
+            min-width: 26px;
+            border: 2px solid #bbb;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .card.done .ck {
+            background: #111;
+            border-color: #111;
+        }
+
+        .nm {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .meta {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--acc);
+            background: rgba(10, 132, 255, .1);
+            padding: 1px 8px;
+            border-radius: 99px;
+            margin-left: 6px;
+            vertical-align: 1px;
+        }
+
+        .cue {
+            font-size: 13px;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .tag {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .note {
+            background: #fff8e1;
+            border: 1px solid #f0dfa0;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .reset {
+            display: block;
+            margin: 20px auto 8px;
+            border: 0;
+            background: none;
+            color: #999;
+            font-size: 13px;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 id="title">Weekly workout guide</h1>
+    <div class="prog">
+        <div id="bar"></div>
+    </div>
+    <div class="days" id="days"></div>
+    <div class="seg">
+        <button id="bAm" class="on">Morning</button>
+        <button id="bPm">Evening</button>
+    </div>
+    <div id="list"></div>
+    <button class="reset" onclick="resetWeek()">Reset week</button>
+
+    <script>
+        const CUE = {
+            gob: 'Elbows inside knees, chest tall, drive through your whole foot.',
+            fp: 'Pause briefly on the floor each rep — no bouncing.',
+            bor: 'Flat back, pull the dumbbell to your hip, squeeze shoulder blades.',
+            lat: 'Slight bend in elbows, lead with pinkies, no swinging.',
+            rdl: 'Hips back, soft knees, dumbbells skim your shins.',
+            hc: 'Elbows pinned to your sides, no body swing.',
+            cgp: 'Palms facing each other, elbows tucked ~45 degrees.',
+            gorr: 'Wide stance, flat back, row to hip, alternate sides.',
+            ap: 'Rotate palms as you press, brace your core.',
+            bss: 'Rear foot on a chair, knee tracks over toes.',
+            ur: 'Lead with elbows, stop at shoulder height.',
+            rr: 'Feet wide, hips level — row without rotating.',
+            mike: 'Explode up, drive knees to chest, land soft.',
+            slrdl: 'Soft standing knee, hinge toward a wall behind you.',
+            gb: 'Ribs down, squeeze glutes for 2s at the top.',
+            rdf: 'Bent over, slight elbow bend, lead with shoulders.',
+            db: 'Lower back glued to the floor, move slowly.',
+            rc: 'Curl your pelvis up — no leg swinging.',
+            sp: 'Stack hips, one straight line from ear to ankle.',
+            pal: 'Resist rotation, press out slow, tall posture.',
+            p2p: 'Keep hips still, alternate your lead arm.',
+            llr: 'Lower slowly, don\'t let heels touch down.',
+            sh: 'Stand tall, don\'t lean into the load.',
+            bd: 'Reach arm and leg long, hips level, pause 2s.',
+            s99: 'Sit tall, rotate through both hips, no hands.',
+            wgs: 'Lunge, drop elbow to instep, open to the sky.',
+            ls: 'Hold a wall, swing from the hip.',
+            dsq: 'Heels down, knees out, breathe into your belly.'
+        };
+
+        const SKIP = {
+            Mon: ['Hard intervals', '10 × (45s fast / 30s easy)'], Tue: ['Steady pace', '15 min, conversational speed'],
+            Wed: ['Sprint intervals', '8 × (30s sprint / 45s rest)'], Thu: ['Hard intervals', '10 × (45s fast / 30s easy)'],
+            Fri: ['Steady pace', '15 min, conversational speed'], Sat: ['Sprint intervals', '8 × (30s sprint / 45s rest)'],
+            Sun: ['Light recovery', '10 min easy + extra mobility']
+        };
+
+        const ABS = {
+            Mon: [['Dead bugs', '3 × 10/side', CUE.db], ['Reverse crunches', '3 × 12', CUE.rc]],
+            Tue: [['Side plank', '3 × 30s/side', CUE.sp], ['Pallof-style press', '3 × 10', CUE.pal]],
+            Wed: [['Plank to push-up', '3 × 10', CUE.p2p], ['Lying leg raises', '3 × 12', CUE.llr]],
+            Thu: [['Dead bugs', '3 × 10/side', CUE.db], ['Reverse crunches', '3 × 12', CUE.rc]],
+            Fri: [['Side plank', '3 × 30s/side', CUE.sp], ['Pallof-style press', '3 × 10', CUE.pal]],
+            Sat: [['Plank to push-up', '3 × 10', CUE.p2p], ['Lying leg raises', '3 × 12', CUE.llr]],
+            Sun: [['Suitcase hold', '3 × 30s/side', CUE.sh], ['Bird dogs', '3 × 10/side', CUE.bd]]
+        };
+
+        const PELVIC = [
+            ['Diaphragmatic breathing', '1 min', 'Inhale — let the pelvic floor fully relax and drop. Never skip this.'],
+            ['Slow kegels', '10 reps', 'Squeeze and lift, hold 5s, release slowly.'],
+            ['Quick flicks', '10 reps', 'Fast squeeze — full release each time.'],
+            ['Deep squat breathing', '1 min', 'Sit in a deep squat or happy baby, breathe into your belly.']];
+
+        const MOB = [
+            ['90/90 hip switches', '8/side', CUE.s99], ['World\'s greatest stretch', '5/side', CUE.wgs],
+            ['Leg swings', '10 each way', CUE.ls], ['Deep squat hold', '30s × 2', CUE.dsq]];
+
+        const EVE = {
+            Mon: {
+                label: 'Day A — squat & push', g: [['Superset A', [['Goblet squat', '4 × 8', CUE.gob], ['Floor press', '4 × 8', CUE.fp]]],
+                ['Superset B', [['Bent-over row', '3 × 10', CUE.bor], ['Lateral raise', '3 × 12', CUE.lat]]],
+                ['Straight sets', [['Romanian deadlift', '2 × 12', CUE.rdl], ['Hammer curls', '3 × 10', CUE.hc]]]]
+            },
+            Tue: {
+                label: 'Day B — hinge & pull', g: [['Superset A', [['Romanian deadlift', '4 × 8', CUE.rdl], ['Close-grip press', '4 × 8', CUE.cgp]]],
+                ['Superset B', [['Gorilla rows', '3 × 10', CUE.gorr], ['Arnold press', '3 × 10', CUE.ap]]],
+                ['Straight sets', [['Bulgarian split squat', '3 × 8/side', CUE.bss], ['Upright row', '3 × 12', CUE.ur]]]]
+            },
+            Wed: {
+                label: 'Day C — unilateral & athletic', fin: 'Finisher: 5 min EMOM — 10 jump squats or 20 fast skips.',
+                g: [['Circuit', [['Renegade rows', '3 × 8/side', CUE.rr], ['Mike Tyson push-ups', '3 × 8', CUE.mike],
+                ['Single-leg RDL', '3 × 8/side', CUE.slrdl], ['Glute bridge', '3 × 12', CUE.gb], ['Rear delt fly', '3 × 12', CUE.rdf]]]]
+            },
+            Thu: {
+                label: 'Day A — squat & push', g: [['Superset A', [['Goblet squat', '4 × 8', CUE.gob], ['Floor press', '4 × 8', CUE.fp]]],
+                ['Superset B', [['Bent-over row', '3 × 10', CUE.bor], ['Lateral raise', '3 × 12', CUE.lat]]],
+                ['Straight sets', [['Romanian deadlift', '2 × 12', CUE.rdl], ['Hammer curls', '3 × 10', CUE.hc]]]]
+            },
+            Fri: {
+                label: 'Day B — hinge & pull', g: [['Superset A', [['Romanian deadlift', '4 × 8', CUE.rdl], ['Close-grip press', '4 × 8', CUE.cgp]]],
+                ['Superset B', [['Gorilla rows', '3 × 10', CUE.gorr], ['Arnold press', '3 × 10', CUE.ap]]],
+                ['Straight sets', [['Bulgarian split squat', '3 × 8/side', CUE.bss], ['Upright row', '3 × 12', CUE.ur]]]]
+            },
+            Sat: {
+                label: 'Day C — unilateral & athletic', fin: 'Finisher: 5 min EMOM — 10 jump squats or 20 fast skips.',
+                g: [['Circuit', [['Renegade rows', '3 × 8/side', CUE.rr], ['Mike Tyson push-ups', '3 × 8', CUE.mike],
+                ['Single-leg RDL', '3 × 8/side', CUE.slrdl], ['Glute bridge', '3 × 12', CUE.gb], ['Rear delt fly', '3 × 12', CUE.rdf]]]]
+            },
+            Sun: { label: 'Rest & recover', note: 'No weights today. 20 min easy skipping or a walk, then the mobility flow.', g: [] }
+        };
+
+        const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const FULL = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
+        let cur = (new Date().getDay() + 6) % 7, ses = 'am';
+
+        function wk() { const d = new Date(), n = (d.getDay() + 6) % 7; d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10); }
+        function key(d, s, i) { return wk() + '|' + d + '|' + s + '|' + i; }
+        function items(d, s) {
+            const out = [];
+            if (s === 'am') {
+                out.push(['Skipping — ' + SKIP[d][0], SKIP[d][1], '']);                      // 1
+                ABS[d].forEach(a => out.push([a[0], a[1], a[2]]));                          // 2
+                PELVIC.forEach(p => out.push([p[0], p[1], p[2]]));                          // 4
+                MOB.forEach(m => out.push([m[0], m[1], m[2]]));                             // 4
+            } else if (EVE[d].g.length) {
+                EVE[d].g.forEach(gr => gr[1].forEach(x => out.push([x[0], x[1], x[2]])));
+            }
+            return out;
+        }
+        function total() { let t = 0; DAYS.forEach(d => { t += items(d, 'am').length + items(d, 'pm').length; }); return t; }
+        function doneCount() { let n = 0; DAYS.forEach(d => { ['am', 'pm'].forEach(s => items(d, s).forEach((_, i) => { if (localStorage.getItem(key(d, s, i))) n++; })); }); return n; }
+
+        function render() {
+            document.getElementById('bar').style.width = (100 * doneCount() / total()) + '%';
+            document.getElementById('title').textContent = FULL[DAYS[cur]] + (ses === 'am' ? ' — morning' : ' — evening');
+            document.getElementById('bAm').className = ses === 'am' ? 'on' : '';
+            document.getElementById('bPm').className = ses === 'pm' ? 'on' : '';
+            const L = document.getElementById('list'); L.innerHTML = '';
+            const day = DAYS[cur];
+            const card = (title, meta, cue, i, s) => {
+                const k = key(day, s, i), dn = localStorage.getItem(k) ? ' done' : '';
+                return `<div class="card${dn}"><button class="ck" onclick="tog('${k}',this)">✓</button>
+      <div><span class="nm">${title}</span><span class="meta">${meta}</span>
+      ${cue ? `<div class="cue">${cue}</div>` : ''}</div></div>`;
+            };
+            const sec = t => `<div class="sec">${t}</div>`;
+            if (ses === 'am') {
+                L.innerHTML += sec('Skipping cardio') + card('Skipping — ' + SKIP[day][0], SKIP[day][1], '', 0, 'am');
+                L.innerHTML += sec('Abs circuit');
+                ABS[day].forEach((a, j) => L.innerHTML += card(a[0], a[1], a[2], 1 + j, 'am'));
+                L.innerHTML += sec('Kegels & pelvic floor');
+                PELVIC.forEach((p, j) => L.innerHTML += card(p[0], p[1], p[2], 3 + j, 'am'));
+                L.innerHTML += sec('Hip mobility');
+                MOB.forEach((m, j) => L.innerHTML += card(m[0], m[1], m[2], 7 + j, 'am'));
+            } else {
+                const e = EVE[day];
+                if (e.note) { L.innerHTML += `<div class="note">${e.note}</div>`; return; }
+                L.innerHTML += sec(e.label);
+                let i = 0;
+                e.g.forEach(gr => {
+                    L.innerHTML += `<div class="tag" style="margin:0 4px 4px">${gr[0]} — do in pairs, 60–75s rest after each pair</div>`;
+                    gr[1].forEach(x => { L.innerHTML += card(x[0], x[1], x[2], i++, 'pm'); });
+                });
+                if (e.fin) L.innerHTML += `<div class="note">${e.fin}</div>`;
+                L.innerHTML += sec('Hip mobility cooldown');
+                MOB.forEach((m, j) => L.innerHTML += card(m[0], m[1], m[2], i++, 'pm'));
+            }
+        }
+        function tog(k, btn) { localStorage.getItem(k) ? localStorage.removeItem(k) : localStorage.setItem(k, '1'); render(); }
+        function resetWeek() { if (confirm('Clear all checkmarks for this week?')) { Object.keys(localStorage).filter(k => k.startsWith(wk())).forEach(k => localStorage.removeItem(k)); render(); } }
+
+        document.getElementById('days').innerHTML = DAYS.map((d, i) =>
+            `<button class="${i === cur ? 'on' : ''}" onclick="cur=${i};render();document.querySelectorAll('.days button').forEach((b,j)=>b.className=j===cur?'on':'');">${d}</button>`).join('');
+        document.getElementById('bAm').onclick = () => { ses = 'am'; render(); };
+        document.getElementById('bPm').onclick = () => { ses = 'pm'; render(); };
+        render();
+    </script>
+</body>
+
+</html>

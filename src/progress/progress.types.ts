@@ -19,6 +19,8 @@ export interface UserProgress {
   notificationsEnabled: boolean; // Opt-in / Opt-out
   lastMorningReminderSentAt?: string;
   lastEveningReminderSentAt?: string;
+  lastLaunchUrl?: string;
+  lastLaunchedAt?: string;
   updatedAt: string;
 }
 

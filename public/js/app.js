@@ -964,8 +964,32 @@
     }
   }
 
-  // 7. Initial Boot
+  // 7. Telemetry - Log Launch URL to Backend & Console
+  async function recordMiniAppLaunch() {
+    try {
+      const launchUrl = window.location.href;
+      console.log(`🚀 [FORTIS Mini App] Launching for ${currentUserId} (${currentUserName}):`, launchUrl);
+      await fetch('/api/progress/launch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          telegramId: currentUserId,
+          firstName: currentUserName,
+          username: currentUserHandle,
+          url: launchUrl,
+          platform: tg?.platform || 'browser',
+          tab: activeTab,
+          session: curSession
+        })
+      });
+    } catch (e) {
+      // Fire and forget
+    }
+  }
+
+  // 8. Initial Boot
   window.addEventListener('DOMContentLoaded', async () => {
+    recordMiniAppLaunch();
     await loadWeightData();
     await loadNotificationPreference();
     switchTab(activeTab);

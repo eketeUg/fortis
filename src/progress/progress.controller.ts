@@ -41,6 +41,22 @@ export class ProgressController {
     return this.progressService.getUserStats(telegramId, totalCount);
   }
 
+  @Post('launch')
+  recordLaunch(
+    @Body()
+    body: {
+      telegramId: string;
+      firstName?: string;
+      username?: string;
+      url: string;
+      platform?: string;
+      tab?: string;
+      session?: string;
+    },
+  ) {
+    return this.progressService.recordLaunch(body);
+  }
+
   @Post('sync')
   syncProgress(@Body() dto: SyncProgressDto): UserProgress {
     return this.progressService.syncProgress(dto);

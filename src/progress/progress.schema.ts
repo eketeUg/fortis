@@ -19,6 +19,8 @@ export interface UserProgressDocument extends Document {
   notificationsEnabled: boolean;
   lastMorningReminderSentAt?: string;
   lastEveningReminderSentAt?: string;
+  lastLaunchUrl?: string;
+  lastLaunchedAt?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -45,6 +47,8 @@ export const UserProgressSchema = new Schema<UserProgressDocument>(
     notificationsEnabled: { type: Boolean, default: true },
     lastMorningReminderSentAt: { type: String },
     lastEveningReminderSentAt: { type: String },
+    lastLaunchUrl: { type: String },
+    lastLaunchedAt: { type: String },
   },
   { timestamps: true },
 );

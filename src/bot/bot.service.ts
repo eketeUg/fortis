@@ -206,6 +206,12 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       fullUrl += (fullUrl.includes('?') ? '&' : '?') + params.join('&');
     }
 
+    if (userId) {
+      this.logger.log(
+        `🔗 [MINI APP URL DISPATCHED] User ${userId} [Button: "${label}"] -> ${fullUrl}`,
+      );
+    }
+
     if (isHttps) {
       return [{ text: label, web_app: { url: fullUrl } }];
     }

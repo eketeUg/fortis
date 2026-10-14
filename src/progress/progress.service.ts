@@ -89,6 +89,8 @@ export class ProgressService implements OnModuleInit {
           notificationsEnabled: doc.notificationsEnabled !== false,
           lastMorningReminderSentAt: doc.lastMorningReminderSentAt,
           lastEveningReminderSentAt: doc.lastEveningReminderSentAt,
+          lastLaunchUrl: doc.lastLaunchUrl,
+          lastLaunchedAt: doc.lastLaunchedAt,
           updatedAt: doc.updatedAt
             ? doc.updatedAt.toISOString()
             : new Date().toISOString(),
@@ -130,6 +132,8 @@ export class ProgressService implements OnModuleInit {
               notificationsEnabled: user.notificationsEnabled,
               lastMorningReminderSentAt: user.lastMorningReminderSentAt,
               lastEveningReminderSentAt: user.lastEveningReminderSentAt,
+              lastLaunchUrl: user.lastLaunchUrl,
+              lastLaunchedAt: user.lastLaunchedAt,
             },
           },
           { upsert: true, returnDocument: 'after' },
@@ -409,6 +413,32 @@ export class ProgressService implements OnModuleInit {
       }
     }
     return true;
+  }
+
+  recordLaunch(data: {
+    telegramId: string;
+    firstName?: string;
+    username?: string;
+    url: string;
+    platform?: string;
+    tab?: string;
+    session?: string;
+  }) {
+    const user = this.getUserProgress(data.telegramId);
+    user.lastLaunchUrl = data.url;
+    user.lastLaunchedAt = new Date().toISOString();
+    if (data.firstName) user.firstName = data.firstName;
+    if (data.username) user.username = data.username;
+    this.saveToDisk();
+    this.persistUserToMongo(user);
+
+    const userLabel = data.username
+      ? `${data.firstName || 'Athlete'} (${data.username})`
+      : data.firstName || 'Athlete';
+    this.logger.log(
+      `🚀 [MINI APP LAUNCHED] ${userLabel} [ID: ${data.telegramId}] opened: ${data.url} (Platform: ${data.platform || 'web'})`,
+    );
+    return { ok: true, url: data.url, timestamp: user.lastLaunchedAt };
   }
 
   resetWeek(telegramId: string): UserProgress {

@@ -1,0 +1,35 @@
+# /etc/nginx/sites-available/fortis.conf
+# Replace 'fortis.yourdomain.com' with your actual domain or subdomain
+
+server {
+    server_name fortis.yourdomain.com;
+
+    location / {
+        # Forward traffic to the Fortis Fit Docker container
+        proxy_pass http://127.0.0.1:3005;
+        proxy_http_version 1.1;
+
+        # WebSocket & live connection support
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+
+        # Standard proxy headers
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Critical for Telegram Mini App: Allow iframe embedding in Telegram
+        add_header Content-Security-Policy "frame-ancestors 'self' https://web.telegram.org https://*.telegram.org;" always;
+        add_header X-Frame-Options "ALLOWALL" always;
+
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 90s;
+        proxy_connect_timeout 90s;
+    }
+
+    # Gzip compression for faster mobile loading
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+}
+

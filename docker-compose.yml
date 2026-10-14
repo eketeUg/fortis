@@ -1,5 +1,5 @@
 services:
-  # 🏋️ FORTIS FIT NestJS Application
+  # 🏋️ FORTIS FIT Application Container
   fortis-fit:
     build:
       context: .
@@ -11,36 +11,12 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3005
+    ports:
+      # Binds to localhost only on your VPS
+      # Your host Nginx proxies public HTTPS traffic to this port
+      - "127.0.0.1:3005:3005"
     volumes:
       - fortis-data:/app/.data
-    networks:
-      - fortis-network
-
-  # 🔒 Caddy: Automatic HTTPS reverse proxy with free Let's Encrypt SSL
-  caddy:
-    image: caddy:2-alpine
-    container_name: fortis-caddy
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      - DOMAIN=${DOMAIN}
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy-data:/data
-      - caddy-config:/config
-    depends_on:
-      - fortis-fit
-    networks:
-      - fortis-network
 
 volumes:
   fortis-data:
-  caddy-data:
-  caddy-config:
-
-networks:
-  fortis-network:
-    driver: bridge
-

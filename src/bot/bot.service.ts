@@ -4,6 +4,8 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
+import { ClientRequest } from 'http';
+import * as https from 'https';
 import { ProgressService } from '../progress/progress.service';
 import { WorkoutService } from '../workout/workout.service';
 import { TelegramUpdate } from './bot.types';
@@ -15,9 +17,10 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
   private webAppUrl: string =
     process.env.TELEGRAM_WEBAPP_URL || 'http://localhost:3000';
   private isPolling = false;
-  private abortController: AbortController | null = null;
+  private currentPollReq: ClientRequest | null = null;
   private lastUpdateId = 0;
   private reminderInterval: NodeJS.Timeout | null = null;
+  private retryTimeout: NodeJS.Timeout | null = null;
 
   constructor(
     private readonly workoutService: WorkoutService,
@@ -36,48 +39,141 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
+    this.connectBotWithRetry();
+  }
+
+  private async connectBotWithRetry(attempt = 1) {
     try {
-      const me = await this.telegramApi('getMe');
-      if (me.ok) {
+      this.logger.log(
+        `🤖 Connecting to Telegram Bot API via IPv4 (attempt ${attempt})...`,
+      );
+      const me = await this.telegramApi('getMe', null, 30000);
+      if (me && me.ok) {
         this.logger.log(
           `🤖 Telegram Bot connected successfully: @${me.result.username} (${me.result.first_name})`,
         );
+        // Ensure no lingering webhook blocks getUpdates
+        try {
+          await this.telegramApi('deleteWebhook', {
+            drop_pending_updates: false,
+          });
+        } catch {}
         await this.setupMenuButton();
         this.startPolling();
         this.startReminderScheduler();
       } else {
-        this.logger.error(
-          `Failed to connect Telegram Bot: ${JSON.stringify(me)}`,
-        );
+        throw new Error(me?.description || 'Response not ok');
       }
-    } catch (err) {
-      this.logger.error(`Error connecting Telegram Bot: ${err.message}`);
+    } catch (err: any) {
+      this.logger.warn(
+        `⚠️ Telegram Bot connection attempt ${attempt} failed: ${err.message}. Retrying in 5s...`,
+      );
+      this.retryTimeout = setTimeout(
+        () => this.connectBotWithRetry(attempt + 1),
+        5000,
+      );
     }
   }
 
   onModuleDestroy() {
     this.stopPolling();
+    if (this.retryTimeout) {
+      clearTimeout(this.retryTimeout);
+      this.retryTimeout = null;
+    }
     if (this.reminderInterval) {
       clearInterval(this.reminderInterval);
       this.reminderInterval = null;
     }
   }
 
-  private async telegramApi(method: string, body?: any): Promise<any> {
+  private async telegramApi(
+    method: string,
+    body?: any,
+    timeoutMs = 30000,
+    retries = method === 'getUpdates' ? 1 : 3,
+  ): Promise<any> {
     if (!this.botToken) return null;
-    const url = `https://api.telegram.org/bot${this.botToken}/${method}`;
-    const options: RequestInit = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    };
-    if (body) {
-      options.body = JSON.stringify(body);
+
+    let lastError: any;
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        return await this.executeTelegramRequest(method, body, timeoutMs);
+      } catch (err: any) {
+        lastError = err;
+        if (attempt < retries) {
+          this.logger.warn(
+            `⚠️ Telegram API "${method}" attempt ${attempt} failed: ${err.message}. Retrying in 1s...`,
+          );
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
     }
-    const res = await fetch(url, options);
-    return res.json();
+    throw lastError;
+  }
+
+  private executeTelegramRequest(
+    method: string,
+    body?: any,
+    timeoutMs = 30000,
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const postData = body ? JSON.stringify(body) : null;
+      const options: https.RequestOptions = {
+        hostname: 'api.telegram.org',
+        path: `/bot${this.botToken}/${method}`,
+        method: postData ? 'POST' : 'GET',
+        family: 4, // Force IPv4 to bypass broken ISP IPv6 routing
+        headers: {
+          'Content-Type': 'application/json',
+          ...(postData
+            ? { 'Content-Length': Buffer.byteLength(postData) }
+            : {}),
+        },
+        timeout: timeoutMs,
+      };
+
+      const req = https.request(options, (res) => {
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          try {
+            const parsed = JSON.parse(data);
+            if (!parsed.ok) {
+              this.logger.warn(
+                `⚠️ Telegram API error on "${method}": ${parsed.description || JSON.stringify(parsed)}`,
+              );
+            }
+            resolve(parsed);
+          } catch {
+            resolve({ ok: false, description: data });
+          }
+        });
+      });
+
+      req.on('error', (err) => reject(err));
+      req.on('timeout', () => {
+        req.destroy();
+        reject(
+          new Error(`Telegram API request timed out after ${timeoutMs}ms`),
+        );
+      });
+
+      if (postData) {
+        req.write(postData);
+      }
+      req.end();
+    });
   }
 
   private async setupMenuButton() {
+    if (!this.webAppUrl.startsWith('https://')) {
+      this.logger.warn(
+        `ℹ️ Telegram Chat Menu Web App button requires an HTTPS URL (current: ${this.webAppUrl}). ` +
+          `Set TELEGRAM_WEBAPP_URL to an HTTPS tunnel or deployed URL to enable the Telegram Menu button.`,
+      );
+      return;
+    }
     try {
       await this.telegramApi('setChatMenuButton', {
         menu_button: {
@@ -89,41 +185,88 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       this.logger.log(
         `✅ Telegram Chat Menu button configured to URL: ${this.webAppUrl}`,
       );
-    } catch (err) {
+    } catch (err: any) {
       this.logger.warn(`Could not set chat menu button: ${err.message}`);
     }
   }
 
+  private getWebAppKeyboardRow(
+    userId?: string,
+    label = '🏋️ Open FORTIS App',
+    tab?: string,
+    session?: string,
+  ): any[] {
+    const isHttps = this.webAppUrl && this.webAppUrl.startsWith('https://');
+    let fullUrl = this.webAppUrl;
+    const params: string[] = [];
+    if (userId) params.push(`user_id=${userId}`);
+    if (tab) params.push(`tab=${tab}`);
+    if (session) params.push(`session=${session}`);
+    if (params.length > 0) {
+      fullUrl += (fullUrl.includes('?') ? '&' : '?') + params.join('&');
+    }
+
+    if (isHttps) {
+      return [{ text: label, web_app: { url: fullUrl } }];
+    }
+    return [
+      {
+        text: `${label} 🌐`,
+        callback_data: `open_local_app:${userId || ''}`,
+      },
+    ];
+  }
+
   private startPolling() {
     this.isPolling = true;
-    this.abortController = new AbortController();
     this.pollLoop();
   }
 
   private stopPolling() {
     this.isPolling = false;
-    if (this.abortController) {
-      this.abortController.abort();
-      this.abortController = null;
+    if (this.currentPollReq) {
+      this.currentPollReq.destroy();
+      this.currentPollReq = null;
     }
   }
 
   private async pollLoop() {
+    this.logger.log('📡 Starting Telegram update polling loop...');
     while (this.isPolling) {
       try {
-        const res = await fetch(
-          `https://api.telegram.org/bot${this.botToken}/getUpdates?offset=${this.lastUpdateId + 1}&timeout=30`,
-          { signal: this.abortController?.signal },
+        const data = await this.telegramApi(
+          'getUpdates',
+          { offset: this.lastUpdateId + 1, timeout: 20 },
+          35000,
         );
-        const data = await res.json();
-        if (data.ok && Array.isArray(data.result)) {
+        if (data && data.ok && Array.isArray(data.result)) {
+          if (data.result.length > 0) {
+            this.logger.log(
+              `📥 Received ${data.result.length} update(s) from Telegram`,
+            );
+          }
           for (const update of data.result as TelegramUpdate[]) {
             this.lastUpdateId = update.update_id;
             await this.handleUpdate(update);
           }
+        } else if (data && !data.ok) {
+          if (data.error_code === 409) {
+            this.logger.warn(
+              '⚠️ Telegram 409 Conflict: Another bot instance is polling with this token. Waiting 5s...',
+            );
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+          } else {
+            this.logger.warn(
+              `⚠️ Telegram getUpdates returned not ok: ${JSON.stringify(data)}`,
+            );
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+          }
         }
       } catch (err: any) {
-        if (err.name === 'AbortError') break;
+        if (!this.isPolling) break;
+        this.logger.warn(
+          `⚠️ Telegram polling connection drop: ${err.message}. Reconnecting in 3s...`,
+        );
         await new Promise((resolve) => setTimeout(resolve, 3000));
       }
     }
@@ -132,6 +275,9 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
   async handleUpdate(update: any) {
     // 1. Handle Inline Button Callbacks
     if (update.callback_query) {
+      this.logger.log(
+        `🔘 Button callback received: "${update.callback_query.data}" from user ${update.callback_query.from?.id}`,
+      );
       await this.handleCallbackQuery(update.callback_query);
       return;
     }
@@ -146,13 +292,17 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
     const firstName = user?.first_name || 'Warrior';
     const username = user?.username ? `@${user.username}` : undefined;
 
+    this.logger.log(
+      `💬 Command received: "${text}" from ${firstName} (chatId: ${chatId})`,
+    );
+
     // Save Chat ID for automated reminders
     this.progressService.saveChatId(userId, chatId, firstName, username);
 
     if (text.startsWith('/start')) {
       await this.sendWelcomeMessage(chatId, firstName, userId);
     } else if (text.startsWith('/today')) {
-      await this.sendTodayWorkout(chatId);
+      await this.sendTodayWorkout(chatId, userId);
     } else if (text.startsWith('/consistency')) {
       await this.sendConsistencyChart(chatId, userId, firstName);
     } else if (text.startsWith('/weight')) {
@@ -179,6 +329,21 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
 
     // Acknowledge callback
     await this.telegramApi('answerCallbackQuery', { callback_query_id: cb.id });
+
+    if (callbackData.startsWith('open_local_app')) {
+      const targetUserId = callbackData.split(':')[1] || userId;
+      const fullUrl = `${this.webAppUrl}?user_id=${targetUserId}`;
+      await this.telegramApi('sendMessage', {
+        chat_id: chatId,
+        text:
+          `🌐 *FORTIS Web App Access*\n\n` +
+          `Your personal workout portal URL:\n\`${fullUrl}\`\n\n` +
+          `💡 *In-Telegram Mini App Mode:*\n` +
+          `Telegram requires an HTTPS URL to launch Mini Apps inside the chat. Run an HTTPS tunnel (e.g. \`ngrok http 3005\`) and set \`TELEGRAM_WEBAPP_URL\` in \`.env\` to open FORTIS directly inside Telegram!`,
+        parse_mode: 'Markdown',
+      });
+      return;
+    }
 
     if (callbackData === 'view_consistency') {
       await this.sendConsistencyChart(chatId, userId, firstName);
@@ -212,12 +377,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
                 callback_data: 'toggle_notifications',
               },
             ],
-            [
-              {
-                text: '🏋️ Return to FORTIS App',
-                web_app: { url: `${this.webAppUrl}?user_id=${userId}` },
-              },
-            ],
+            this.getWebAppKeyboardRow(userId, '🏋️ Return to FORTIS App'),
           ],
         },
       });
@@ -230,17 +390,22 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
     name: string,
     userId: string,
   ) {
-    const appUrl = `${this.webAppUrl}?user_id=${userId}`;
     const user = this.progressService.getUserProgress(userId);
     const notifStatus = user.notificationsEnabled !== false;
+    const isHttps = this.webAppUrl && this.webAppUrl.startsWith('https://');
 
-    const text =
+    let text =
       `⚔️ *Welcome to FORTIS*\n` +
       `_STRENGTH THROUGH DISCIPLINE_\n` +
       `— † —\n\n` +
       `Welcome, *${name}*. Your full-body training and daily physical discipline starts here.\n\n` +
-      `🔔 *Reminders:* ${notifStatus ? 'ACTIVE (5am & 7pm WAT)' : 'MUTED'}\n\n` +
-      `Choose an option below to enter the arena or inspect your training metrics:`;
+      `🔔 *Reminders:* ${notifStatus ? 'ACTIVE (5am & 7pm WAT)' : 'MUTED'}\n\n`;
+
+    if (!isHttps) {
+      text += `🌐 *Web App URL:* \`${this.webAppUrl}?user_id=${userId}\`\n\n`;
+    }
+
+    text += `Choose an option below to enter the arena or inspect your training metrics:`;
 
     await this.telegramApi('sendMessage', {
       chat_id: chatId,
@@ -248,12 +413,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [
-          [
-            {
-              text: '🏋️ Open FORTIS App',
-              web_app: { url: appUrl },
-            },
-          ],
+          this.getWebAppKeyboardRow(userId, '🏋️ Open FORTIS App'),
           [
             {
               text: '📊 Consistency Chart',
@@ -308,18 +468,17 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
     chartText += `\n📈 *Week Completion Rate:* ${stats.completionPercentage}%\n`;
     chartText += `Keep showing up daily. True strength is forged in consistency.`;
 
+    if (!this.webAppUrl.startsWith('https://')) {
+      chartText += `\n\n🌐 *Web App:* \`${this.webAppUrl}?user_id=${userId}\``;
+    }
+
     await this.telegramApi('sendMessage', {
       chat_id: chatId,
       text: chartText,
       parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [
-          [
-            {
-              text: '🏋️ Open FORTIS App',
-              web_app: { url: `${this.webAppUrl}?user_id=${userId}` },
-            },
-          ],
+          this.getWebAppKeyboardRow(userId, '🏋️ Open FORTIS App'),
         ],
       },
     });
@@ -350,20 +509,21 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       });
     }
 
+    if (!this.webAppUrl.startsWith('https://')) {
+      text += `\n\n🌐 *Web App:* \`${this.webAppUrl}?user_id=${userId}&tab=weight\``;
+    }
+
     await this.telegramApi('sendMessage', {
       chat_id: chatId,
       text,
       parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [
-          [
-            {
-              text: '⚖️ Log Today’s Weight in App',
-              web_app: {
-                url: `${this.webAppUrl}?user_id=${userId}&tab=weight`,
-              },
-            },
-          ],
+          this.getWebAppKeyboardRow(
+            userId,
+            '⚖️ Log Today’s Weight in App',
+            'weight',
+          ),
         ],
       },
     });
@@ -382,7 +542,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       stats.completionPercentage,
     );
 
-    const text =
+    let text =
       `📈 *FORTIS — WEEKLY PROGRESS REPORT*\n` +
       `_Strength Through Discipline_\n— † —\n\n` +
       `Athlete: *${name}*\n` +
@@ -394,18 +554,17 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       `   🌙 ${plan.evening.label}\n\n` +
       `Discipline is choosing between what you want now and what you want most.`;
 
+    if (!this.webAppUrl.startsWith('https://')) {
+      text += `\n\n🌐 *Web App:* \`${this.webAppUrl}?user_id=${userId}\``;
+    }
+
     await this.telegramApi('sendMessage', {
       chat_id: chatId,
       text,
       parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [
-          [
-            {
-              text: '🚀 Launch Workout App',
-              web_app: { url: `${this.webAppUrl}?user_id=${userId}` },
-            },
-          ],
+          this.getWebAppKeyboardRow(userId, '🚀 Launch Workout App'),
         ],
       },
     });
@@ -421,7 +580,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
     return `[${'■'.repeat(filled)}${'□'.repeat(empty)}]`;
   }
 
-  private async sendTodayWorkout(chatId: number) {
+  private async sendTodayWorkout(chatId: number, userId?: string) {
     const plan = this.workoutService.getTodayPlan();
     let text = `⚔️ *FORTIS — TODAY'S TRAINING: ${plan.fullName.toUpperCase()}*\n_Strength Through Discipline_\n\n`;
 
@@ -449,18 +608,17 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       text += `_${plan.evening.note}_\n`;
     }
 
+    if (!this.webAppUrl.startsWith('https://')) {
+      text += `\n\n🌐 *Web App:* \`${this.webAppUrl}${userId ? `?user_id=${userId}` : ''}\``;
+    }
+
     await this.telegramApi('sendMessage', {
       chat_id: chatId,
       text,
       parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [
-          [
-            {
-              text: '🏋️ Start Workout in App',
-              web_app: { url: this.webAppUrl },
-            },
-          ],
+          this.getWebAppKeyboardRow(userId, '🏋️ Start Workout in App'),
         ],
       },
     });
@@ -571,7 +729,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
     userId: string,
   ) {
     const plan = this.workoutService.getTodayPlan();
-    const text =
+    let text =
       `⚔️ *FORTIS MORNING CALL — 5:00 AM WAT*\n` +
       `_STRENGTH THROUGH DISCIPLINE_\n— † —\n\n` +
       `Rise and conquer, *${name}*. Your morning session has not been finished yet!\n\n` +
@@ -581,18 +739,17 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       `• *Hip Mobility Flow*\n\n` +
       `Discipline demands consistency. Tap below to finish your morning workout:`;
 
+    if (!this.webAppUrl.startsWith('https://')) {
+      text += `\n\n🌐 *Web App:* \`${this.webAppUrl}?user_id=${userId}\``;
+    }
+
     await this.telegramApi('sendMessage', {
       chat_id: chatId,
       text,
       parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [
-          [
-            {
-              text: '🏋️ Complete Morning Workout',
-              web_app: { url: `${this.webAppUrl}?user_id=${userId}` },
-            },
-          ],
+          this.getWebAppKeyboardRow(userId, '🏋️ Complete Morning Workout'),
         ],
       },
     });
@@ -604,7 +761,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
     userId: string,
   ) {
     const plan = this.workoutService.getTodayPlan();
-    const text =
+    let text =
       `⚔️ *FORTIS EVENING CALL — 7:00 PM WAT*\n` +
       `_STRENGTH THROUGH DISCIPLINE_\n— † —\n\n` +
       `Evening check-in, *${name}*. Your strength workout is still waiting.\n\n` +
@@ -613,20 +770,22 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       `Do not let the day close without doing the work.\n\n` +
       `Step up to the weights and complete the session:`;
 
+    if (!this.webAppUrl.startsWith('https://')) {
+      text += `\n\n🌐 *Web App:* \`${this.webAppUrl}?user_id=${userId}&session=pm\``;
+    }
+
     await this.telegramApi('sendMessage', {
       chat_id: chatId,
       text,
       parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [
-          [
-            {
-              text: '🏋️ Complete Evening Workout',
-              web_app: {
-                url: `${this.webAppUrl}?user_id=${userId}&session=pm`,
-              },
-            },
-          ],
+          this.getWebAppKeyboardRow(
+            userId,
+            '🏋️ Complete Evening Workout',
+            undefined,
+            'pm',
+          ),
         ],
       },
     });
@@ -636,13 +795,17 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
     const user = this.progressService.getUserProgress(userId);
     const enabled = user.notificationsEnabled !== false;
 
-    const text =
+    let text =
       `🔔 *FORTIS TRAINING REMINDERS*\n` +
       `_STRENGTH THROUGH DISCIPLINE_\n— † —\n\n` +
       `Current Status: *${enabled ? 'ACTIVE ✅' : 'MUTED 🔕'}*\n\n` +
       `• *Morning Call:* 5:00 AM WAT\n` +
       `• *Evening Call:* 7:00 PM WAT\n\n` +
       `When active, FORTIS will send reminder notifications until your daily session is completed.`;
+
+    if (!this.webAppUrl.startsWith('https://')) {
+      text += `\n\n🌐 *Web App:* \`${this.webAppUrl}?user_id=${userId}\``;
+    }
 
     await this.telegramApi('sendMessage', {
       chat_id: chatId,
@@ -656,12 +819,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
               callback_data: 'toggle_notifications',
             },
           ],
-          [
-            {
-              text: '🏋️ Open FORTIS App',
-              web_app: { url: `${this.webAppUrl}?user_id=${userId}` },
-            },
-          ],
+          this.getWebAppKeyboardRow(userId, '🏋️ Open FORTIS App'),
         ],
       },
     });

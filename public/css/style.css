@@ -996,9 +996,12 @@ body::before {
   --anim-rate: 2;
 }
 
-.illustration-stage svg {
+.illustration-stage svg,
+.illustration-stage img.exercise-live-gif {
   max-width: 100%;
   max-height: 100%;
+  border-radius: var(--radius-md);
+  object-fit: contain;
 }
 
 .anim-control-bar {

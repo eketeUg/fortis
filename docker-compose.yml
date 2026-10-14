@@ -1,0 +1,46 @@
+services:
+  # 🏋️ FORTIS FIT NestJS Application
+  fortis-fit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fortis-fit
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3005
+    volumes:
+      - fortis-data:/app/.data
+    networks:
+      - fortis-network
+
+  # 🔒 Caddy: Automatic HTTPS reverse proxy with free Let's Encrypt SSL
+  caddy:
+    image: caddy:2-alpine
+    container_name: fortis-caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - fortis-fit
+    networks:
+      - fortis-network
+
+volumes:
+  fortis-data:
+  caddy-data:
+  caddy-config:
+
+networks:
+  fortis-network:
+    driver: bridge
+

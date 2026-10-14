@@ -130,7 +130,7 @@ export class ProgressService implements OnModuleInit {
               lastEveningReminderSentAt: user.lastEveningReminderSentAt,
             },
           },
-          { upsert: true, new: true },
+          { upsert: true, returnDocument: 'after' },
         )
         .exec();
     } catch (err) {

@@ -720,6 +720,14 @@
       const normBtn = document.getElementById('animSpeedNormal');
       if (slowBtn) slowBtn.classList.remove('active');
       if (normBtn) normBtn.classList.add('active');
+
+      // Check if a real animated GIF exists in public/assets/exercises/
+      const gifSrc = ex.gifUrl || `/assets/exercises/${exerciseId}.gif`;
+      const testImg = new Image();
+      testImg.onload = function () {
+        stage.innerHTML = `<img src="${gifSrc}" class="exercise-live-gif" alt="${ex.name}" />`;
+      };
+      testImg.src = gifSrc;
     }
 
     if (chips) {

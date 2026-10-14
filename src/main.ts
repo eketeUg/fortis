@@ -1,5 +1,12 @@
 import * as dotenv from 'dotenv';
 import { resolve } from 'path';
+import * as dns from 'dns';
+
+// Force fast public DNS and IPv4 first to prevent timeouts on networks with broken DNS / IPv6 routes
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch {}
+dns.setDefaultResultOrder('ipv4first');
 
 // Load .env before initializing any NestJS modules
 dotenv.config({ path: resolve(process.cwd(), '.env') });

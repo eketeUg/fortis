@@ -29,9 +29,6 @@
     }
   }
 
-  // Base path for API requests (supports root domains, subdomains, and subpaths like /fortis/)
-  const API_BASE = window.location.pathname.replace(/\/$/, '') + '/api';
-
   // Telegram User Data Extraction
   const urlParams = new URLSearchParams(window.location.search);
   const tgUser = tg?.initDataUnsafe?.user;

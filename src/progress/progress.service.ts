@@ -1,17 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
+import mongoose from 'mongoose';
 import * as path from 'path';
+import { getUserProgressModel } from './progress.schema';
 import {
   LogWeightDto,
   ProgressStats,
   SyncProgressDto,
+  ToggleNotificationDto,
   UserProgress,
   WeightEntry,
 } from './progress.types';
 
 @Injectable()
-export class ProgressService {
+export class ProgressService implements OnModuleInit {
   private readonly logger = new Logger(ProgressService.name);
   private readonly storagePath = path.resolve(
     process.cwd(),
@@ -19,10 +22,122 @@ export class ProgressService {
     'progress.json',
   );
   private userStore: Map<string, UserProgress> = new Map();
+  private isMongoConnected = false;
 
   constructor() {
     this.ensureStorage();
     this.loadFromDisk();
+  }
+
+  async onModuleInit() {
+    await this.connectMongo();
+  }
+
+  private async connectMongo() {
+    const uri = process.env.MONGO_URI;
+    if (!uri) {
+      this.logger.warn(
+        'ℹ️ MONGO_URI not provided. ProgressService using local file persistence.',
+      );
+      return;
+    }
+
+    try {
+      await mongoose.connect(uri);
+      this.isMongoConnected = true;
+      this.logger.log(
+        '🍃 Connected to MongoDB successfully. Loading cloud user data...',
+      );
+      await this.loadFromMongo();
+    } catch (err) {
+      this.logger.error(
+        `Failed to connect to MongoDB: ${err.message}. Falling back to disk storage.`,
+      );
+    }
+  }
+
+  private async loadFromMongo() {
+    try {
+      const model = getUserProgressModel();
+      const docs = await model.find().exec();
+      for (const doc of docs) {
+        const completedObj: Record<string, boolean> = {};
+        if (doc.completedItems) {
+          if (doc.completedItems instanceof Map) {
+            for (const [k, v] of doc.completedItems.entries()) {
+              completedObj[k] = v;
+            }
+          } else {
+            Object.assign(completedObj, doc.completedItems);
+          }
+        }
+
+        const user: UserProgress = {
+          telegramId: doc.telegramId,
+          chatId: doc.chatId,
+          username: doc.username,
+          firstName: doc.firstName,
+          currentWeek: doc.currentWeek || this.getWeekKey(),
+          completedItems: completedObj,
+          weightHistory: doc.weightHistory || [],
+          streak: doc.streak || 0,
+          lastActiveDate: doc.lastActiveDate || '',
+          completedDays: doc.completedDays || [],
+          totalWorkoutsCompleted: doc.totalWorkoutsCompleted || 0,
+          notificationsEnabled: doc.notificationsEnabled !== false,
+          lastMorningReminderSentAt: doc.lastMorningReminderSentAt,
+          lastEveningReminderSentAt: doc.lastEveningReminderSentAt,
+          updatedAt: doc.updatedAt
+            ? doc.updatedAt.toISOString()
+            : new Date().toISOString(),
+        };
+
+        this.userStore.set(user.telegramId, user);
+      }
+      this.logger.log(`🍃 Synced ${docs.length} users from MongoDB.`);
+      this.saveToDisk(); // Update local disk cache
+    } catch (err) {
+      this.logger.warn(`Could not load users from MongoDB: ${err.message}`);
+    }
+  }
+
+  private async persistUserToMongo(user: UserProgress) {
+    if (!this.isMongoConnected) return;
+    try {
+      const model = getUserProgressModel();
+      const completedMap = new Map<string, boolean>();
+      for (const [k, v] of Object.entries(user.completedItems || {})) {
+        completedMap.set(k, v);
+      }
+
+      await model
+        .findOneAndUpdate(
+          { telegramId: user.telegramId },
+          {
+            $set: {
+              chatId: user.chatId,
+              username: user.username,
+              firstName: user.firstName,
+              currentWeek: user.currentWeek,
+              completedItems: completedMap,
+              weightHistory: user.weightHistory,
+              streak: user.streak,
+              lastActiveDate: user.lastActiveDate,
+              completedDays: user.completedDays,
+              totalWorkoutsCompleted: user.totalWorkoutsCompleted,
+              notificationsEnabled: user.notificationsEnabled,
+              lastMorningReminderSentAt: user.lastMorningReminderSentAt,
+              lastEveningReminderSentAt: user.lastEveningReminderSentAt,
+            },
+          },
+          { upsert: true, new: true },
+        )
+        .exec();
+    } catch (err) {
+      this.logger.warn(
+        `Failed to persist user ${user.telegramId} to MongoDB: ${err.message}`,
+      );
+    }
   }
 
   private ensureStorage() {
@@ -44,10 +159,12 @@ export class ProgressService {
         for (const [key, val] of Object.entries(parsed)) {
           const user = val as UserProgress;
           if (!user.weightHistory) user.weightHistory = [];
+          if (user.notificationsEnabled === undefined)
+            user.notificationsEnabled = true;
           this.userStore.set(key, user);
         }
         this.logger.log(
-          `Loaded progress data for ${this.userStore.size} users.`,
+          `Loaded progress data for ${this.userStore.size} users from local disk.`,
         );
       }
     } catch (err) {
@@ -124,14 +241,19 @@ export class ProgressService {
         lastActiveDate: '',
         completedDays: [],
         totalWorkoutsCompleted: 0,
+        notificationsEnabled: true,
         updatedAt: new Date().toISOString(),
       };
       this.userStore.set(id, user);
       this.saveToDisk();
+      this.persistUserToMongo(user);
     }
 
     if (!user.weightHistory) {
       user.weightHistory = [];
+    }
+    if (user.notificationsEnabled === undefined) {
+      user.notificationsEnabled = true;
     }
 
     // Reset weekly items if we entered a new week
@@ -139,6 +261,7 @@ export class ProgressService {
       user.currentWeek = currentWeek;
       user.updatedAt = new Date().toISOString();
       this.saveToDisk();
+      this.persistUserToMongo(user);
     }
 
     return user;
@@ -155,6 +278,7 @@ export class ProgressService {
     if (firstName) user.firstName = firstName;
     if (username) user.username = username;
     this.saveToDisk();
+    this.persistUserToMongo(user);
     return user;
   }
 
@@ -167,6 +291,9 @@ export class ProgressService {
     if (dto.username) user.username = dto.username;
     if (dto.firstName) user.firstName = dto.firstName;
     if (dto.chatId) user.chatId = dto.chatId;
+    if (dto.notificationsEnabled !== undefined) {
+      user.notificationsEnabled = dto.notificationsEnabled;
+    }
 
     // Merge completed items
     user.completedItems = {
@@ -201,7 +328,21 @@ export class ProgressService {
 
     this.userStore.set(id, user);
     this.saveToDisk();
+    this.persistUserToMongo(user);
 
+    return user;
+  }
+
+  // Notification Opt-in / Opt-out
+  setNotificationPreference(dto: ToggleNotificationDto): UserProgress {
+    const user = this.getUserProgress(dto.telegramId);
+    user.notificationsEnabled = dto.enabled;
+    user.updatedAt = new Date().toISOString();
+    this.saveToDisk();
+    this.persistUserToMongo(user);
+    this.logger.log(
+      `🔔 User ${user.telegramId} notification preference set to: ${user.notificationsEnabled}`,
+    );
     return user;
   }
 
@@ -211,7 +352,6 @@ export class ProgressService {
     const date = dto.date || this.getTodayDateString();
     const roundedWeight = Math.round(dto.weight * 10) / 10;
 
-    // Check if entry for date already exists, update or push
     const existingIndex = user.weightHistory.findIndex((w) => w.date === date);
     const entry: WeightEntry = {
       date,
@@ -225,11 +365,11 @@ export class ProgressService {
       user.weightHistory.push(entry);
     }
 
-    // Sort by date ascending
     user.weightHistory.sort((a, b) => a.date.localeCompare(b.date));
     user.updatedAt = new Date().toISOString();
 
     this.saveToDisk();
+    this.persistUserToMongo(user);
     return user.weightHistory;
   }
 
@@ -244,6 +384,7 @@ export class ProgressService {
       (w) => w.date !== date,
     );
     this.saveToDisk();
+    this.persistUserToMongo(user);
     return user.weightHistory;
   }
 
@@ -263,6 +404,7 @@ export class ProgressService {
     user.updatedAt = new Date().toISOString();
     this.userStore.set(id, user);
     this.saveToDisk();
+    this.persistUserToMongo(user);
 
     return user;
   }
@@ -299,12 +441,14 @@ export class ProgressService {
       latestWeight,
       weightStart,
       weightChange,
+      notificationsEnabled: user.notificationsEnabled !== false,
     };
   }
 
-  getAllUsersWithChat(): UserProgress[] {
+  // Returns only users who opted IN to notifications (notificationsEnabled !== false)
+  getAllUsersForReminders(): UserProgress[] {
     return Array.from(this.userStore.values()).filter(
-      (u) => u.chatId !== undefined,
+      (u) => u.chatId !== undefined && u.notificationsEnabled !== false,
     );
   }
 
@@ -335,5 +479,6 @@ export class ProgressService {
       user.lastEveningReminderSentAt = nowIso;
     }
     this.saveToDisk();
+    this.persistUserToMongo(user);
   }
 }

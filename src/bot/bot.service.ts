@@ -159,6 +159,11 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       await this.sendWeightChart(chatId, userId, firstName);
     } else if (text.startsWith('/progress') || text.startsWith('/stats')) {
       await this.sendProgressChart(chatId, userId, firstName);
+    } else if (
+      text.startsWith('/reminders') ||
+      text.startsWith('/notifications')
+    ) {
+      await this.sendReminderSettings(chatId, userId);
     } else if (text.startsWith('/testreminder')) {
       await this.sendTestReminder(chatId, userId);
     } else if (text.startsWith('/help')) {
@@ -181,6 +186,41 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       await this.sendWeightChart(chatId, userId, firstName);
     } else if (callbackData === 'view_progress') {
       await this.sendProgressChart(chatId, userId, firstName);
+    } else if (callbackData === 'toggle_notifications') {
+      const user = this.progressService.getUserProgress(userId);
+      const newStatus = !user.notificationsEnabled;
+      this.progressService.setNotificationPreference({
+        telegramId: userId,
+        enabled: newStatus,
+      });
+
+      const statusText = newStatus
+        ? '🔔 *Reminders Enabled!* You will receive morning (5:00 AM WAT) and evening (7:00 PM WAT) session calls until completed.'
+        : '🔕 *Reminders Muted.* You will not receive automated training reminder calls.';
+
+      await this.telegramApi('sendMessage', {
+        chat_id: chatId,
+        text: statusText,
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: newStatus
+                  ? '🔕 Mute Reminders'
+                  : '🔔 Enable Reminders (5am & 7pm WAT)',
+                callback_data: 'toggle_notifications',
+              },
+            ],
+            [
+              {
+                text: '🏋️ Return to FORTIS App',
+                web_app: { url: `${this.webAppUrl}?user_id=${userId}` },
+              },
+            ],
+          ],
+        },
+      });
     }
   }
 
@@ -191,12 +231,15 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
     userId: string,
   ) {
     const appUrl = `${this.webAppUrl}?user_id=${userId}`;
+    const user = this.progressService.getUserProgress(userId);
+    const notifStatus = user.notificationsEnabled !== false;
 
     const text =
       `⚔️ *Welcome to FORTIS*\n` +
       `_STRENGTH THROUGH DISCIPLINE_\n` +
       `— † —\n\n` +
       `Welcome, *${name}*. Your full-body training and daily physical discipline starts here.\n\n` +
+      `🔔 *Reminders:* ${notifStatus ? 'ACTIVE (5am & 7pm WAT)' : 'MUTED'}\n\n` +
       `Choose an option below to enter the arena or inspect your training metrics:`;
 
     await this.telegramApi('sendMessage', {
@@ -225,6 +268,10 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
             {
               text: '📈 Progress Chart',
               callback_data: 'view_progress',
+            },
+            {
+              text: notifStatus ? '🔔 Reminders: ON' : '🔕 Reminders: OFF',
+              callback_data: 'toggle_notifications',
             },
           ],
         ],
@@ -450,7 +497,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const todayDayKey = days[now.getDay()];
 
-      const users = this.progressService.getAllUsersWithChat();
+      const users = this.progressService.getAllUsersForReminders();
       if (users.length === 0) return;
 
       // 1. Morning Window: 5:00 AM to 1:00 PM WAT
@@ -578,6 +625,41 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
               web_app: {
                 url: `${this.webAppUrl}?user_id=${userId}&session=pm`,
               },
+            },
+          ],
+        ],
+      },
+    });
+  }
+
+  private async sendReminderSettings(chatId: number, userId: string) {
+    const user = this.progressService.getUserProgress(userId);
+    const enabled = user.notificationsEnabled !== false;
+
+    const text =
+      `🔔 *FORTIS TRAINING REMINDERS*\n` +
+      `_STRENGTH THROUGH DISCIPLINE_\n— † —\n\n` +
+      `Current Status: *${enabled ? 'ACTIVE ✅' : 'MUTED 🔕'}*\n\n` +
+      `• *Morning Call:* 5:00 AM WAT\n` +
+      `• *Evening Call:* 7:00 PM WAT\n\n` +
+      `When active, FORTIS will send reminder notifications until your daily session is completed.`;
+
+    await this.telegramApi('sendMessage', {
+      chat_id: chatId,
+      text,
+      parse_mode: 'Markdown',
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: enabled ? '🔕 Mute Reminders' : '🔔 Enable Reminders',
+              callback_data: 'toggle_notifications',
+            },
+          ],
+          [
+            {
+              text: '🏋️ Open FORTIS App',
+              web_app: { url: `${this.webAppUrl}?user_id=${userId}` },
             },
           ],
         ],

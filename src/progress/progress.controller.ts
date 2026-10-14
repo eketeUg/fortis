@@ -12,6 +12,7 @@ import {
   LogWeightDto,
   ProgressStats,
   SyncProgressDto,
+  ToggleNotificationDto,
   UserProgress,
   WeightEntry,
 } from './progress.types';
@@ -61,5 +62,11 @@ export class ProgressController {
     @Param('date') date: string,
   ): WeightEntry[] {
     return this.progressService.deleteWeight(telegramId, date);
+  }
+
+  // Notification Preferences (Opt-in / Opt-out)
+  @Post('notifications')
+  setNotificationPreference(@Body() dto: ToggleNotificationDto): UserProgress {
+    return this.progressService.setNotificationPreference(dto);
   }
 }

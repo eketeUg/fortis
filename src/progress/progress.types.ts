@@ -16,6 +16,7 @@ export interface UserProgress {
   lastActiveDate: string;
   completedDays: string[];
   totalWorkoutsCompleted: number;
+  notificationsEnabled: boolean; // Opt-in / Opt-out
   lastMorningReminderSentAt?: string;
   lastEveningReminderSentAt?: string;
   updatedAt: string;
@@ -30,12 +31,18 @@ export interface SyncProgressDto {
   weekKey?: string;
   completedItems: Record<string, boolean>;
   markActive?: boolean;
+  notificationsEnabled?: boolean;
 }
 
 export interface LogWeightDto {
   telegramId: string;
   date?: string; // defaults to today YYYY-MM-DD
   weight: number;
+}
+
+export interface ToggleNotificationDto {
+  telegramId: string;
+  enabled: boolean;
 }
 
 export interface ProgressStats {
@@ -48,4 +55,5 @@ export interface ProgressStats {
   latestWeight?: number;
   weightStart?: number;
   weightChange?: number;
+  notificationsEnabled: boolean;
 }

@@ -165,6 +165,16 @@
           <span>🟢 Evening Session</span>
           <span>✨ Full Day</span>
         </div>
+      <!-- Notification Preferences Opt-in / Opt-out -->
+      <div class="notification-card">
+        <div class="notif-info-box">
+          <h3>🔔 Training Reminders</h3>
+          <p>5:00 AM & 7:00 PM WAT automated alerts until your session is completed.</p>
+        </div>
+        <label class="switch" title="Toggle Training Reminders">
+          <input type="checkbox" id="notifToggleCheckbox" onchange="toggleNotificationSetting(this.checked)" checked />
+          <span class="slider"></span>
+        </label>
       </div>
 
       <!-- Motto Banner -->
@@ -203,8 +213,23 @@
         <button class="close-btn" onclick="closeExerciseModal()" aria-label="Close modal">✕</button>
       </div>
 
-      <!-- High-Def Vector Illustration Stage -->
-      <div class="illustration-stage" id="modalIllustrationStage"></div>
+      <!-- 3D Animated Illustration Stage with Biomechanical Controls -->
+      <div class="stage-wrapper">
+        <div class="illustration-stage" id="modalIllustrationStage"></div>
+        <div class="anim-control-bar">
+          <button class="anim-btn" id="animPlayBtn" onclick="toggleAnimPlay()" title="Play / Pause Animation">
+            <span id="animPlayIcon">⏸️</span> <span id="animPlayText">Pause</span>
+          </button>
+          <div class="anim-speed-group">
+            <button class="anim-speed-btn" id="animSpeedSlow" onclick="setAnimRate(2, this)" title="0.5x Slow Motion Form Analysis">
+              🐢 0.5x
+            </button>
+            <button class="anim-speed-btn active" id="animSpeedNormal" onclick="setAnimRate(1, this)" title="1.0x Normal Pace">
+              ⚡ 1.0x
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- Muscle & Equipment Chips -->
       <div class="muscle-chips" id="modalMuscleChips"></div>

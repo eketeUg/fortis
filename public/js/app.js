@@ -709,6 +709,17 @@
     if (stage) {
       const svg = window.EXERCISE_ILLUSTRATIONS[ex.illustrationType || exerciseId] || '';
       stage.innerHTML = svg;
+      stage.classList.remove('anim-paused');
+      stage.classList.remove('anim-slow');
+      stage.style.setProperty('--anim-rate', '1');
+      const icon = document.getElementById('animPlayIcon');
+      const text = document.getElementById('animPlayText');
+      if (icon) icon.textContent = '⏸️';
+      if (text) text.textContent = 'Pause';
+      const slowBtn = document.getElementById('animSpeedSlow');
+      const normBtn = document.getElementById('animSpeedNormal');
+      if (slowBtn) slowBtn.classList.remove('active');
+      if (normBtn) normBtn.classList.add('active');
     }
 
     if (chips) {
@@ -761,6 +772,32 @@
     const modal = document.getElementById('exerciseModal');
     if (modal) modal.classList.remove('open');
     pauseTimer();
+  };
+
+  window.toggleAnimPlay = function () {
+    triggerHaptic('light');
+    const stage = document.getElementById('modalIllustrationStage');
+    const icon = document.getElementById('animPlayIcon');
+    const text = document.getElementById('animPlayText');
+    if (!stage) return;
+    const isPaused = stage.classList.toggle('anim-paused');
+    if (icon) icon.textContent = isPaused ? '▶️' : '⏸️';
+    if (text) text.textContent = isPaused ? 'Play' : 'Pause';
+  };
+
+  window.setAnimRate = function (rate, btnEl) {
+    triggerHaptic('light');
+    const stage = document.getElementById('modalIllustrationStage');
+    if (stage) {
+      stage.style.setProperty('--anim-rate', String(rate));
+      if (rate > 1) {
+        stage.classList.add('anim-slow');
+      } else {
+        stage.classList.remove('anim-slow');
+      }
+    }
+    document.querySelectorAll('.anim-speed-btn').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
   };
 
   document.addEventListener('click', e => {
@@ -871,9 +908,52 @@
     }
   };
 
+  // Notification Preference Toggle
+  window.toggleNotificationSetting = async function (enabled) {
+    triggerHaptic('medium');
+    localStorage.setItem(`fortis_notif_${currentUserId}`, enabled ? '1' : '0');
+
+    if (enabled) {
+      showToast('🔔 Reminders Enabled (5 AM & 7 PM WAT)');
+    } else {
+      showToast('🔕 Reminders Muted');
+    }
+
+    try {
+      await fetch('/api/progress/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          telegramId: currentUserId,
+          enabled: enabled
+        })
+      });
+    } catch (e) {}
+  };
+
+  async function loadNotificationPreference() {
+    try {
+      const res = await fetch(`/api/progress/${currentUserId}`);
+      if (res.ok) {
+        const data = await res.json();
+        const checkbox = document.getElementById('notifToggleCheckbox');
+        if (checkbox) {
+          checkbox.checked = data.notificationsEnabled !== false;
+        }
+      }
+    } catch (e) {
+      const local = localStorage.getItem(`fortis_notif_${currentUserId}`);
+      const checkbox = document.getElementById('notifToggleCheckbox');
+      if (checkbox && local !== null) {
+        checkbox.checked = local === '1';
+      }
+    }
+  }
+
   // 7. Initial Boot
   window.addEventListener('DOMContentLoaded', async () => {
     await loadWeightData();
+    await loadNotificationPreference();
     switchTab(activeTab);
     syncToServer();
   });

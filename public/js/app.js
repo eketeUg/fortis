@@ -53,6 +53,17 @@
     }
   }
 
+  // Dynamic API & Asset Base Resolver (Supports root domain / or subpath /fortis/)
+  function getApiUrl(path) {
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    const pathname = window.location.pathname;
+    const match = pathname.match(/^(.*?\/fortis)(?:\/|$)/i);
+    if (match) {
+      return `${match[1]}${cleanPath}`;
+    }
+    return cleanPath;
+  }
+
   // 2. State & Keys
   const DAYS = window.FORTIS_DATA.DAYS;
   const FULL_DAYS = window.FORTIS_DATA.FULL_DAYS;
@@ -214,7 +225,7 @@
         });
       });
 
-      const res = await fetch('/api/progress/sync', {
+      const res = await fetch(getApiUrl('/api/progress/sync'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -475,7 +486,7 @@
   // ----------------------------------------------------
   async function loadWeightData() {
     try {
-      const res = await fetch(`/api/progress/${currentUserId}/weight`);
+      const res = await fetch(getApiUrl(`/api/progress/${currentUserId}/weight`));
       if (res.ok) {
         weightHistory = await res.json();
         if (weightHistory && weightHistory.length > 0) {
@@ -578,7 +589,7 @@
 
     // Sync to NestJS backend
     try {
-      const res = await fetch('/api/progress/weight', {
+      const res = await fetch(getApiUrl('/api/progress/weight'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -606,7 +617,7 @@
     renderWeightView();
 
     try {
-      const res = await fetch(`/api/progress/${currentUserId}/weight/${date}`, { method: 'DELETE' });
+      const res = await fetch(getApiUrl(`/api/progress/${currentUserId}/weight/${date}`), { method: 'DELETE' });
       if (!res.ok) {
         console.error(`❌ [DELETE WEIGHT FAILED] HTTP ${res.status}: ${res.statusText}`);
       } else {
@@ -751,7 +762,7 @@
       if (normBtn) normBtn.classList.add('active');
 
       // Check if a real animated GIF exists in public/assets/exercises/
-      const gifSrc = ex.gifUrl || `/assets/exercises/${exerciseId}.gif`;
+      const gifSrc = ex.gifUrl || getApiUrl(`/assets/exercises/${exerciseId}.gif`);
       const testImg = new Image();
       testImg.onload = function () {
         stage.innerHTML = `<img src="${gifSrc}" class="exercise-live-gif" alt="${ex.name}" />`;
@@ -957,7 +968,7 @@
     }
 
     try {
-      await fetch('/api/progress/notifications', {
+      await fetch(getApiUrl('/api/progress/notifications'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -970,7 +981,7 @@
 
   async function loadServerUserData() {
     try {
-      const res = await fetch(`/api/progress/${currentUserId}`);
+      const res = await fetch(getApiUrl(`/api/progress/${currentUserId}`));
       if (res.ok) {
         const data = await res.json();
         console.log(`📥 [CLOUD SYNC] Retrieved progress for athlete ${currentUserId}:`, data);
@@ -1013,7 +1024,7 @@
     try {
       const launchUrl = window.location.href;
       console.log(`🚀 [FORTIS Mini App] Launching for ${currentUserId} (${currentUserName}):`, launchUrl);
-      await fetch('/api/progress/launch', {
+      await fetch(getApiUrl('/api/progress/launch'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -22,18 +22,11 @@ export class WorkoutService {
   }
 
   getTodayPlan(): DayPlan {
-    const days: Array<'Sun' | 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat'> = [
-      'Sun',
-      'Mon',
-      'Tue',
-      'Wed',
-      'Thu',
-      'Fri',
-      'Sat',
-    ];
-    const todayIndex = new Date().getDay();
-    const dayKey = days[todayIndex];
-    return WEEKLY_SCHEDULE[dayKey];
+    const dayKey = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Africa/Lagos',
+      weekday: 'short',
+    }).format(new Date());
+    return WEEKLY_SCHEDULE[dayKey] || WEEKLY_SCHEDULE['Mon'];
   }
 
   getAllExercises(): Exercise[] {

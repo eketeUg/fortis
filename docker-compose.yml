@@ -11,6 +11,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3005
+      - TZ=Africa/Lagos
     ports:
       # Binds to localhost only on your VPS
       # Your host Nginx proxies public HTTPS traffic to this port

@@ -1,3 +1,5 @@
+process.env.TZ = 'Africa/Lagos';
+
 import * as dotenv from 'dotenv';
 import { resolve } from 'path';
 import * as dns from 'dns';

@@ -676,8 +676,10 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
         minute: '2-digit',
       });
       const [hour] = watTimeStr.split(':').map(Number);
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const todayDayKey = days[now.getDay()];
+      const todayDayKey = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Africa/Lagos',
+        weekday: 'short',
+      }).format(now);
 
       const users = this.progressService.getAllUsersForReminders();
       if (users.length === 0) return;

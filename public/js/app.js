@@ -64,12 +64,45 @@
     return cleanPath;
   }
 
+  // WAT (West Africa Time, Africa/Lagos = UTC+1) Time Helpers
+  function getWatDateString() {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Africa/Lagos',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(new Date());
+  }
+
+  function getWatWeekday() {
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Africa/Lagos',
+      weekday: 'short'
+    }).format(new Date());
+  }
+
+  function getWatHour() {
+    const hourStr = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Africa/Lagos',
+      hour: 'numeric',
+      hour12: false
+    }).format(new Date());
+    return parseInt(hourStr, 10) || 10;
+  }
+
+  function getWatDayIndex() {
+    const weekday = getWatWeekday();
+    const map = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+    return map[weekday] ?? 0;
+  }
+
   // 2. State & Keys
   const DAYS = window.FORTIS_DATA.DAYS;
   const FULL_DAYS = window.FORTIS_DATA.FULL_DAYS;
 
-  let curDay = (new Date().getDay() + 6) % 7;
-  let curSession = urlParams.get('session') === 'pm' ? 'pm' : 'am';
+  let curDay = getWatDayIndex();
+  let defaultSession = getWatHour() >= 13 ? 'pm' : 'am';
+  let curSession = urlParams.get('session') ? (urlParams.get('session') === 'pm' ? 'pm' : 'am') : defaultSession;
   let activeTab = urlParams.get('tab') || 'workouts';
 
   // Weight State
@@ -83,15 +116,18 @@
   let timerTotalSeconds = 60;
   let isTimerRunning = false;
 
-  function getWeekKey() {
-    const d = new Date();
-    const day = (d.getDay() + 6) % 7;
-    d.setDate(d.getDate() - day);
-    return d.toISOString().slice(0, 10);
+  function getTodayString() {
+    return getWatDateString();
   }
 
-  function getTodayString() {
-    return new Date().toISOString().slice(0, 10);
+  function getWeekKey() {
+    const todayWat = getWatDateString();
+    const weekday = getWatWeekday();
+    const map = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+    const offset = map[weekday] ?? 0;
+    const d = new Date(todayWat + 'T12:00:00Z');
+    d.setUTCDate(d.getUTCDate() - offset);
+    return d.toISOString().slice(0, 10);
   }
 
   function getStorageKey(day, session, index) {

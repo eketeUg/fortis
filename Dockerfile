@@ -23,6 +23,9 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
+# Install tzdata for West Africa Time (Africa/Lagos / WAT = UTC+1)
+RUN apk add --no-cache tzdata
+ENV TZ=Africa/Lagos
 ENV NODE_ENV=production
 ENV PORT=3005
 

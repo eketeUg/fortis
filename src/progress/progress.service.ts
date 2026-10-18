@@ -208,15 +208,35 @@ export class ProgressService implements OnModuleInit {
     }
   }
 
-  getWeekKey(): string {
-    const d = new Date();
-    const day = (d.getDay() + 6) % 7; // Monday = 0
-    d.setDate(d.getDate() - day);
-    return d.toISOString().slice(0, 10);
+  getTodayDateString(): string {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Africa/Lagos',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
   }
 
-  getTodayDateString(): string {
-    return new Date().toISOString().slice(0, 10);
+  getWeekKey(): string {
+    const now = new Date();
+    const todayWat = this.getTodayDateString();
+    const weekday = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Africa/Lagos',
+      weekday: 'short',
+    }).format(now);
+    const daysMap: Record<string, number> = {
+      Mon: 0,
+      Tue: 1,
+      Wed: 2,
+      Thu: 3,
+      Fri: 4,
+      Sat: 5,
+      Sun: 6,
+    };
+    const offset = daysMap[weekday] ?? 0;
+    const d = new Date(todayWat + 'T12:00:00Z');
+    d.setUTCDate(d.getUTCDate() - offset);
+    return d.toISOString().slice(0, 10);
   }
 
   validateTelegramInitData(initData: string, botToken: string): boolean {
@@ -340,9 +360,9 @@ export class ProgressService implements OnModuleInit {
     // Calculate streak
     if (dto.markActive !== false) {
       if (user.lastActiveDate !== today) {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().slice(0, 10);
+        const d = new Date(today + 'T12:00:00Z');
+        d.setUTCDate(d.getUTCDate() - 1);
+        const yesterdayStr = d.toISOString().slice(0, 10);
 
         if (user.lastActiveDate === yesterdayStr) {
           user.streak = (user.streak || 0) + 1;

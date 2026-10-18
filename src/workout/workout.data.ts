@@ -1,1087 +1,2016 @@
 import { DayPlan, Exercise } from './workout.types';
 
 export const EXERCISE_DATABASE: Record<string, Exercise> = {
-  // Skipping & Cardio
-  skipping: {
-    id: 'skipping',
-    name: 'Jump Rope / Skipping',
-    targetMuscles: ['Calves', 'Cardio / Full Body', 'Shoulders'],
-    equipment: 'Jump Rope',
-    cue: 'Light on the balls of your feet, elbows tight to your ribs, flick from wrists.',
-    instructions: [
-      'Maintain an upright posture with shoulders down and relaxed.',
-      'Keep your elbows pinned close to your torso and turn the rope primarily with your wrists.',
-      'Bounce lightly on the balls of your feet, jumping only 1-2 inches off the floor.',
-      'Keep your knees soft to absorb impact smoothly on every landing.',
+  "skipping": {
+    "id": "skipping",
+    "name": "Jump Rope / Skipping",
+    "targetMuscles": [
+      "Calves",
+      "Cardio / Full Body",
+      "Shoulders"
     ],
-    mistakes: [
-      'Swinging arms from the shoulders instead of rotating from the wrists.',
-      'Jumping too high or bending knees excessively backwards.',
-      'Landing heavily on flat feet or heels.',
+    "equipment": "Jump Rope",
+    "cue": "Light on the balls of your feet, elbows pinned to your ribs, flick from the wrists.",
+    "instructions": [
+      "Maintain an upright athletic posture with shoulders relaxed down and back.",
+      "Keep elbows close to your ribcage and rotate the rope strictly with your wrists.",
+      "Bounce lightly on the balls of your feet, jumping only 1-2 inches off the ground.",
+      "Breathe rhythmically in through the nose and out through the mouth to sustain high intensity."
     ],
-    illustrationType: 'skipping',
-    defaultRepsOrTime: 'Intervals / Steady',
-    category: 'cardio',
+    "mistakes": [
+      "Swinging arms widely from shoulders instead of turning wrists.",
+      "Jumping too high or kicking feet back.",
+      "Landing heavily on flat feet or heels."
+    ],
+    "illustrationType": "skipping",
+    "defaultRepsOrTime": "Intervals / High Cadence",
+    "category": "cardio"
   },
-
-  // Abs Circuit
-  dead_bugs: {
-    id: 'dead_bugs',
-    name: 'Dead Bugs',
-    targetMuscles: ['Core'],
-    equipment: 'Mat / Floor',
-    cue: 'Lower back glued to the floor, move slowly and deliberately.',
-    instructions: [
-      'Lie flat on your back with arms reaching toward the ceiling and knees bent at 90 degrees directly over hips.',
-      'Brace your core so your entire lower back presses firmly against the floor with zero gap.',
-      'Slowly extend your right arm overhead and left leg straight out until hovering just above the floor.',
-      'Pause for 1 second, then return to start under control and switch to the opposite side.',
+  "hollow_body_hold": {
+    "id": "hollow_body_hold",
+    "name": "Hollow Body Hold",
+    "targetMuscles": [
+      "Core",
+      "Obliques"
     ],
-    mistakes: [
-      'Allowing lower back to arch off the floor as limbs extend.',
-      'Rushing through the movement without maintaining core tension.',
-      'Letting the stationary knee drift towards the chest.',
+    "equipment": "Mat / Floor",
+    "cue": "Crush your lower back hard into the floor — zero daylight under your spine.",
+    "instructions": [
+      "Lie flat on your back, arms extended overhead beside your ears and legs glued straight.",
+      "Press your lower spine firmly down into the floor by contracting your abs and tilting pelvis.",
+      "Simultaneously lift your shoulder blades and legs 4–6 inches off the floor.",
+      "Hold this rigid banana shape, breathing shallowly into your upper chest while maintaining maximum abdominal compression."
     ],
-    illustrationType: 'dead_bugs',
-    defaultRepsOrTime: '3 × 10/side',
-    category: 'abs',
+    "mistakes": [
+      "Allowing lower back to arch off the floor.",
+      "Bending the knees or letting legs rise too high.",
+      "Holding breath instead of bracing under control."
+    ],
+    "illustrationType": "dead_bugs",
+    "defaultRepsOrTime": "3 × 35s hold",
+    "category": "isometric"
   },
-  reverse_crunches: {
-    id: 'reverse_crunches',
-    name: 'Reverse Crunches',
-    targetMuscles: ['Core'],
-    equipment: 'Mat / Floor',
-    cue: 'Curl your pelvis up toward your ribs — no leg swinging.',
-    instructions: [
-      'Lie on your back with hands beside your hips and knees bent at 90 degrees.',
-      'Draw your abdominal wall inward to initiate the lift from your lower abs.',
-      'Roll your pelvis backward, curling your hips 2–4 inches off the floor toward your chest.',
-      'Hold the peak contraction for a split second, then lower slowly without letting your feet slam.',
+  "rkc_plank": {
+    "id": "rkc_plank",
+    "name": "RKC Maximum Tension Plank",
+    "targetMuscles": [
+      "Core",
+      "Glutes",
+      "Shoulders"
     ],
-    mistakes: [
-      'Kicking or using momentum from your legs to toss hips upward.',
-      'Pressing down violently into the floor with hands and shoulders.',
-      'Dropping down quickly on the eccentric lowering phase.',
+    "equipment": "Mat / Floor",
+    "cue": "Clench fists, clamp glutes hard, and actively drag elbows towards your toes.",
+    "instructions": [
+      "Set up in a standard forearm plank with fists clenched tightly and elbows beneath shoulders.",
+      "Squeeze your glutes, quadriceps, and abdominal wall as hard as possible.",
+      "Without actually moving, aggressively pull your elbows down toward your toes and pull toes toward elbows.",
+      "Create full-body total muscular irradiation — your entire body should tremble within 20 seconds."
     ],
-    illustrationType: 'reverse_crunches',
-    defaultRepsOrTime: '3 × 12',
-    category: 'abs',
+    "mistakes": [
+      "Passive sagging of the hips or piking hips into the air.",
+      "Relaxing glute contraction.",
+      "Treating it like a passive endurance hold instead of a maximum tension lock."
+    ],
+    "illustrationType": "side_plank",
+    "defaultRepsOrTime": "3 × 30s max tension",
+    "category": "isometric"
   },
-  side_plank: {
-    id: 'side_plank',
-    name: 'Side Plank',
-    targetMuscles: ['Obliques', 'Core', 'Shoulders'],
-    equipment: 'Mat / Floor',
-    cue: 'Stack hips, one straight line from ear to ankle, drive bottom hip high.',
-    instructions: [
-      'Lie on your side with your elbow directly underneath your shoulder and forearm perpendicular.',
-      'Stack your feet or stagger them heel-to-toe for added stability.',
-      'Engage your obliques and lift your hips until your body forms a straight diagonal line.',
-      'Keep head neutral, chest open, and breathe steadily throughout the hold.',
+  "side_plank": {
+    "id": "side_plank",
+    "name": "Extended Side Plank Hold",
+    "targetMuscles": [
+      "Obliques",
+      "Core",
+      "Glutes"
     ],
-    mistakes: [
-      'Sagging the lower hip toward the floor.',
-      'Rotating top shoulder forward toward the ground.',
-      'Placing the elbow too far forward or backward from shoulder.',
+    "equipment": "Mat / Floor",
+    "cue": "Drive hips high, stack your body in a razor-straight line from neck to ankles.",
+    "instructions": [
+      "Lie on your side with elbow directly beneath your shoulder and feet stacked.",
+      "Lift hips off the floor until your body forms a straight diagonal line.",
+      "Extend top arm straight toward the ceiling and squeeze the bottom oblique and glute.",
+      "Keep your chest proud and neck neutral, avoiding any forward rotation of the torso."
     ],
-    illustrationType: 'side_plank',
-    defaultRepsOrTime: '3 × 30s/side',
-    category: 'abs',
+    "mistakes": [
+      "Dropping or sagging hips towards the floor.",
+      "Rolling the top shoulder forward.",
+      "Piking hips backward instead of squeezing glutes forward."
+    ],
+    "illustrationType": "side_plank",
+    "defaultRepsOrTime": "3 × 35s/side",
+    "category": "isometric"
   },
-  pallof_press: {
-    id: 'pallof_press',
-    name: 'Pallof-style Press',
-    targetMuscles: ['Obliques', 'Core'],
-    equipment: 'Dumbbells',
-    cue: 'Resist rotation, press out slow, maintain tall athletic posture.',
-    instructions: [
-      'Stand with feet shoulder-width apart, knees soft, holding a dumbbell vertically with both hands at your chest.',
-      'Brace your abdominal wall and glutes firmly.',
-      'Press the weight straight out in front of your chest until arms are extended.',
-      'Hold for 2 seconds resisting any rotation, then slowly pull the weight back to sternum.',
+  "copenhagen_plank": {
+    "id": "copenhagen_plank",
+    "name": "Copenhagen Adductor Plank",
+    "targetMuscles": [
+      "Core",
+      "Obliques",
+      "Glutes"
     ],
-    mistakes: [
-      'Leaning or twisting torso during the press.',
-      'Shrugging shoulders up toward ears.',
-      'Rushing the extension and pause.',
+    "equipment": "Chair / Bench",
+    "cue": "Lock your top leg on the bench, drive bottom hip high, crush the groin muscles.",
+    "instructions": [
+      "Set up in a side plank with your top foot/ankle resting on a bench or sturdy chair.",
+      "Place your bottom elbow directly under your shoulder on the floor.",
+      "Elevate your hips and lift your bottom leg to hover beneath the bench.",
+      "Maintain an unbroken straight line through your torso, resisting rotational collapse."
     ],
-    illustrationType: 'pallof_press',
-    defaultRepsOrTime: '3 × 10',
-    category: 'abs',
+    "mistakes": [
+      "Allowing hips to drop or bend at the waist.",
+      "Placing too much pressure on the knee joint instead of engaging the inner thigh.",
+      "Letting the torso twist toward the floor."
+    ],
+    "illustrationType": "side_plank",
+    "defaultRepsOrTime": "3 × 20s/side",
+    "category": "isometric"
   },
-  plank_to_pushup: {
-    id: 'plank_to_pushup',
-    name: 'Plank to Push-up',
-    targetMuscles: ['Core', 'Triceps', 'Shoulders', 'Chest'],
-    equipment: 'Mat / Floor',
-    cue: 'Keep hips still like a table, alternate your lead arm each rep.',
-    instructions: [
-      'Start in a forearm plank with elbows under shoulders, core braced, feet slightly wider than hip-width.',
-      'Plant your right hand on the floor exactly where your right elbow was, pressing up.',
-      'Immediately plant your left hand and push up into a full high plank position.',
-      'Lower your right elbow back to the floor, followed by your left, returning to forearm plank. Alternate lead hand next rep.',
+  "suitcase_hold": {
+    "id": "suitcase_hold",
+    "name": "Suitcase Isometric Hold",
+    "targetMuscles": [
+      "Obliques",
+      "Core",
+      "Forearms"
     ],
-    mistakes: [
-      'Rocking hips wildly from side to side during the climb.',
-      'Placing hands too far in front of shoulders.',
-      'Letting the lower back dip into hyperextension.',
+    "equipment": "Dumbbells",
+    "cue": "Stand perfectly upright — resist leaning toward the weighted dumbbell.",
+    "instructions": [
+      "Deadlift a single heavy dumbbell with one hand and stand up tall.",
+      "Lock your ribs down, pull shoulders back, and clench your opposite fist for balance.",
+      "Resist the urge to tilt sideways; fight to maintain perfect vertical posture.",
+      "Breathe calmly while your opposite obliques work overtime to keep you level."
     ],
-    illustrationType: 'plank_to_pushup',
-    defaultRepsOrTime: '3 × 10',
-    category: 'abs',
+    "mistakes": [
+      "Leaning or bending torso away from the dumbbell.",
+      "Shrugging the weighted shoulder into the ear.",
+      "Twisting or rotating the hips."
+    ],
+    "illustrationType": "side_plank",
+    "defaultRepsOrTime": "3 × 35s/side",
+    "category": "isometric"
   },
-  lying_leg_raises: {
-    id: 'lying_leg_raises',
-    name: 'Lying Leg Raises',
-    targetMuscles: ['Core'],
-    equipment: 'Mat / Floor',
-    cue: "Lower slowly, don't let heels touch down, keep lumbar pressed.",
-    instructions: [
-      'Lie supine on a mat, hands under glutes or at sides, legs together extended straight.',
-      'Brace your abs and press your lower back firmly into the floor.',
-      'Raise your legs smoothly until perpendicular to the floor (90 degrees at hips).',
-      'Lower legs slowly over 3 seconds until heels hover 1-2 inches above the floor before repeating.',
+  "wall_sit_hold": {
+    "id": "wall_sit_hold",
+    "name": "Wall Sit Isometric Quake",
+    "targetMuscles": [
+      "Quads",
+      "Glutes",
+      "Calves"
     ],
-    mistakes: [
-      'Allowing lower back to peel off the floor as legs descend.',
-      'Using momentum or bouncing feet off the ground.',
-      'Bending knees excessively during the raise.',
+    "equipment": "Bodyweight",
+    "cue": "Thighs parallel to the floor, drive heels into ground, press spine flat to wall.",
+    "instructions": [
+      "Lean your back flat against a sturdy wall and slide down until your knees form a 90-degree angle.",
+      "Ensure your knees are directly above your ankles and thighs are completely parallel to the floor.",
+      "Press your lower back firmly into the wall and rest hands across your chest (not on thighs).",
+      "Hold the position and embrace the quad burn without shifting weight onto toes."
     ],
-    illustrationType: 'lying_leg_raises',
-    defaultRepsOrTime: '3 × 12',
-    category: 'abs',
+    "mistakes": [
+      "Resting hands or forearms on knees to assist.",
+      "Allowing hips to stay above 90 degrees.",
+      "Letting knees cave inward."
+    ],
+    "illustrationType": "goblet_squat",
+    "defaultRepsOrTime": "3 × 45s hold",
+    "category": "isometric"
   },
-  suitcase_hold: {
-    id: 'suitcase_hold',
-    name: 'Suitcase Hold',
-    targetMuscles: ['Obliques', 'Core', 'Shoulders'],
-    equipment: 'Dumbbells',
-    cue: "Stand tall like a flagpole, don't lean toward or away from the load.",
-    instructions: [
-      'Hold a heavy dumbbell in one hand by your side with arms hanging straight.',
-      'Stand with feet hip-width apart, shoulders square, ribs pulled down over hips.',
-      'Resist lateral flexion by contracting your opposite obliques and lateral core.',
-      'Hold for 30 seconds maintaining perfectly upright symmetry, then switch sides.',
+  "dead_bugs": {
+    "id": "dead_bugs",
+    "name": "Dead Bug Isometric Pause",
+    "targetMuscles": [
+      "Core",
+      "Obliques"
     ],
-    mistakes: [
-      'Tilting sideways to compensate for the weight.',
-      'Elevating the shoulder holding the weight.',
-      'Holding your breath during the isometric contraction.',
+    "equipment": "Mat / Floor",
+    "cue": "Lower back glued to the floor, freeze for 3 seconds at full extension.",
+    "instructions": [
+      "Lie flat on your back with arms extended toward the ceiling and knees bent at 90 degrees.",
+      "Brace your core so your entire lumbar spine is sealed against the floor.",
+      "Slowly extend opposite arm and leg until hovering 2 inches off the ground.",
+      "Hold the extended position for a full 3-second isometric pause, then return under control."
     ],
-    illustrationType: 'suitcase_hold',
-    defaultRepsOrTime: '3 × 30s/side',
-    category: 'abs',
+    "mistakes": [
+      "Allowing lower back to arch as limbs reach out.",
+      "Rushing through the movement without pausing.",
+      "Letting the resting knee drift toward the chest."
+    ],
+    "illustrationType": "dead_bugs",
+    "defaultRepsOrTime": "3 × 10/side (3s pause)",
+    "category": "isometric"
   },
-  bird_dogs: {
-    id: 'bird_dogs',
-    name: 'Bird Dogs',
-    targetMuscles: ['Core', 'Glutes', 'Back'],
-    equipment: 'Mat / Floor',
-    cue: 'Reach arm and leg long, keep hips level with the floor, pause 2s.',
-    instructions: [
-      'Begin on all fours with hands under shoulders and knees directly under hips.',
-      'Engage your deep core so your spine remains neutral and flat.',
-      'Simultaneously reach your right arm straight forward and left leg straight back.',
-      'Focus on reaching long rather than high. Squeeze glute and hold 2 seconds, then return smoothly.',
+  "bird_dogs": {
+    "id": "bird_dogs",
+    "name": "Bird Dog Static Lockout",
+    "targetMuscles": [
+      "Back",
+      "Glutes",
+      "Core"
     ],
-    mistakes: [
-      'Arching lower back or kicking leg too high above hip line.',
-      'Rotating the pelvis upward toward the ceiling.',
-      'Bending the extended elbow or knee.',
+    "equipment": "Mat / Floor",
+    "cue": "Reach long like a spear, lock hips level, hold 3s at the peak.",
+    "instructions": [
+      "Start on all fours with hands under shoulders and knees under hips.",
+      "Brace your abdomen to keep your spine flat like a tabletop.",
+      "Simultaneously reach your right arm straight forward and left leg straight back.",
+      "Squeeze the glute at the top and hold the static lockout for 3 seconds before alternating."
     ],
-    illustrationType: 'bird_dogs',
-    defaultRepsOrTime: '3 × 10/side',
-    category: 'abs',
+    "mistakes": [
+      "Over-arching lower back or lifting leg too high.",
+      "Tilting hips sideways.",
+      "Looking up and hyperextending the neck."
+    ],
+    "illustrationType": "bird_dogs",
+    "defaultRepsOrTime": "3 × 10/side (3s pause)",
+    "category": "isometric"
   },
-
-  // Pelvic Floor & Kegels
-  diaphragmatic_breathing: {
-    id: 'diaphragmatic_breathing',
-    name: 'Diaphragmatic Breathing',
-    targetMuscles: ['Pelvic Floor', 'Core'],
-    equipment: 'Mat / Floor',
-    cue: 'Inhale — let the pelvic floor fully relax and drop. Never skip this.',
-    instructions: [
-      'Lie comfortably on your back with knees bent or sit with a tall, relaxed spine.',
-      'Place one hand on your chest and one hand on your belly.',
-      'Inhale deeply through your nose, expanding your ribcage 360 degrees and feeling pelvic floor lengthen and relax.',
-      'Exhale gently through mouth, noticing the gentle natural rebound of your pelvic floor and abs.',
+  "bear_crawl_hold": {
+    "id": "bear_crawl_hold",
+    "name": "Bear Crawl Hover Hold",
+    "targetMuscles": [
+      "Core",
+      "Shoulders",
+      "Quads"
     ],
-    mistakes: [
-      'Shallow chest breathing where shoulders elevate.',
-      'Clenching pelvic floor or glutes on the inhale.',
-      'Forcing air out aggressively instead of gentle relaxation.',
+    "equipment": "Mat / Floor",
+    "cue": "Knees 1 inch off the floor, spine flat as a table, push ground away.",
+    "instructions": [
+      "Start on all fours with wrists directly under shoulders and knees under hips.",
+      "Tuck toes and lift your knees just 1 to 2 inches off the floor.",
+      "Grip the floor hard with your fingertips, push the earth away, and pull ribs to hips.",
+      "Hold completely static without letting knees rise or back sway."
     ],
-    illustrationType: 'diaphragmatic_breathing',
-    defaultRepsOrTime: '1 min',
-    category: 'pelvic',
+    "mistakes": [
+      "Lifting knees too high off the floor.",
+      "Sagging the lower back.",
+      "Dropping head down between shoulders."
+    ],
+    "illustrationType": "dead_bugs",
+    "defaultRepsOrTime": "3 × 40s hold",
+    "category": "isometric"
   },
-  slow_kegels: {
-    id: 'slow_kegels',
-    name: 'Slow Kegels',
-    targetMuscles: ['Pelvic Floor'],
-    equipment: 'Mat / Floor',
-    cue: 'Squeeze and lift pelvic floor, hold 5s, release fully and slowly.',
-    instructions: [
-      'Inhale to prepare and relax completely.',
-      'As you exhale, imagine drawing your sit-bones together and lifting your pelvic floor upward.',
-      'Hold the contraction firmly for 5 seconds without holding your breath or clenching glutes.',
-      'Release slowly over 5 seconds, ensuring complete relaxation before starting the next rep.',
+  "l_sit_tuck": {
+    "id": "l_sit_tuck",
+    "name": "Floor L-Sit / Tuck Hold",
+    "targetMuscles": [
+      "Core",
+      "Triceps",
+      "Shoulders"
     ],
-    mistakes: [
-      'Squeezing glutes, inner thighs, or holding your breath.',
-      'Skipping the relaxation phase between contractions.',
-      'Pushing downward instead of lifting upward.',
+    "equipment": "Mat / Floor",
+    "cue": "Hands beside hips, press through palms to hover hips and knees off the ground.",
+    "instructions": [
+      "Sit on the floor with legs out and hands placed flat beside your mid-thighs.",
+      "Depress shoulders hard, push the floor away, and lift your butt completely off the ground.",
+      "Pull your knees up tight toward your chest in a compact tuck (or extend straight for full L-sit).",
+      "Hold the hover, compressing your hip flexors and abs with maximum intensity."
     ],
-    illustrationType: 'slow_kegels',
-    defaultRepsOrTime: '10 reps (5s hold)',
-    category: 'pelvic',
+    "mistakes": [
+      "Allowing butt to stay resting on the floor.",
+      "Shrugging shoulders up toward ears.",
+      "Letting feet touch the ground during the hold."
+    ],
+    "illustrationType": "dead_bugs",
+    "defaultRepsOrTime": "3 × 20s hold",
+    "category": "isometric"
   },
-  quick_flicks: {
-    id: 'quick_flicks',
-    name: 'Quick Flicks',
-    targetMuscles: ['Pelvic Floor'],
-    equipment: 'Mat / Floor',
-    cue: 'Fast squeeze — full release each time.',
-    instructions: [
-      'Assume a comfortable seated or lying posture.',
-      'Contract your pelvic floor quickly with high power for 1 second.',
-      'Immediately release 100% back to baseline.',
-      'Repeat in a brisk, rhythmic cadence for 10 reps.',
+  "prone_cobra_hold": {
+    "id": "prone_cobra_hold",
+    "name": "Prone Cobra / Superman Hold",
+    "targetMuscles": [
+      "Back",
+      "Glutes",
+      "Shoulders"
     ],
-    mistakes: [
-      'Failing to let the muscle relax completely between flicks.',
-      'Tensing shoulders or neck.',
-      'Holding breath.',
+    "equipment": "Mat / Floor",
+    "cue": "Rotate thumbs to ceiling, lift chest and thighs, clamp glutes hard.",
+    "instructions": [
+      "Lie face down on your stomach with arms by your sides and legs straight.",
+      "Squeeze your shoulder blades together and externally rotate arms so thumbs point to the ceiling.",
+      "Lift your chest and thighs off the floor by firing upper back and glutes.",
+      "Hold the arched tension while breathing smoothly through your diaphragm."
     ],
-    illustrationType: 'quick_flicks',
-    defaultRepsOrTime: '10 reps',
-    category: 'pelvic',
+    "mistakes": [
+      "Cranking the neck upward instead of keeping chin tucked.",
+      "Forgetting to squeeze the glutes.",
+      "Holding breath."
+    ],
+    "illustrationType": "bird_dogs",
+    "defaultRepsOrTime": "3 × 35s hold",
+    "category": "isometric"
   },
-  deep_squat_breathing: {
-    id: 'deep_squat_breathing',
-    name: 'Deep Squat Breathing',
-    targetMuscles: ['Pelvic Floor', 'Hip Mobility'],
-    equipment: 'Bodyweight',
-    cue: 'Sit in a deep squat or happy baby, breathe deeply into your belly.',
-    instructions: [
-      'Drop down into a deep resting squat (or lie in happy baby pose if mobility is restricted).',
-      'Keep heels on floor or elevated on a wedge if needed, with chest up.',
-      'Use elbows to gently press knees outward.',
-      'Take slow, deep diaphragmatic breaths, feeling your pelvic floor widen and release tension.',
+  "glute_bridge_hold": {
+    "id": "glute_bridge_hold",
+    "name": "Glute Bridge Isometric Peak",
+    "targetMuscles": [
+      "Glutes",
+      "Hamstrings",
+      "Core"
     ],
-    mistakes: [
-      'Rounding back excessively or collapsing chest downward.',
-      'Tensing hip flexors instead of relaxing into the bottom position.',
-      'Lifting heels off the ground without support.',
+    "equipment": "Mat / Floor",
+    "cue": "Drive heels through the floor, full hip extension, clamp glutes like a vice.",
+    "instructions": [
+      "Lie on your back with knees bent and feet flat on the floor, hip-width apart.",
+      "Drive through your heels to raise your hips until knees, hips, and shoulders form a straight line.",
+      "At the very top, clamp your glutes with 100% force and brace your abs to prevent lumbar hyperextension.",
+      "Hold the peak isometric contraction, feeling the burn directly in your glutes."
     ],
-    illustrationType: 'deep_squat_breathing',
-    defaultRepsOrTime: '1 min',
-    category: 'pelvic',
+    "mistakes": [
+      "Arching lower back instead of rotating pelvis and squeezing glutes.",
+      "Letting knees collapse inward.",
+      "Pushing through the toes instead of heels."
+    ],
+    "illustrationType": "glute_bridge",
+    "defaultRepsOrTime": "3 × 45s hold",
+    "category": "isometric"
   },
-
-  // Hip Mobility
-  hip_switches_9090: {
-    id: 'hip_switches_9090',
-    name: '90/90 Hip Switches',
-    targetMuscles: ['Hip Mobility', 'Glutes'],
-    equipment: 'Mat / Floor',
-    cue: 'Sit tall, rotate through both hips, avoid hands on floor if possible.',
-    instructions: [
-      'Sit on the floor with both knees bent at 90-degree angles: lead leg in external rotation, trail leg in internal rotation.',
-      'Sit as upright as possible without collapsing through your spine.',
-      'Lift both knees and pivot on your heels, smoothly rotating across to the opposite 90/90 orientation.',
-      'Pause at end range for 2 seconds feeling the stretch through both hips.',
+  "diaphragmatic_breathing": {
+    "id": "diaphragmatic_breathing",
+    "name": "Diaphragmatic Vacuum Breathing",
+    "targetMuscles": [
+      "Pelvic Floor",
+      "Core"
     ],
-    mistakes: [
-      'Slouching through the lower back.',
-      'Rushing the transition across the center.',
-      'Lifting heels off the floor during the switch.',
+    "equipment": "Bodyweight",
+    "cue": "Exhale every drop of air, vacuum navel up and back against your spine.",
+    "instructions": [
+      "Sit or lie on your back with one hand on your lower belly and one on your chest.",
+      "Inhale deeply through your nose, letting your belly expand 360 degrees and pelvic floor relax.",
+      "Exhale forcefully through your mouth until your lungs are empty, then gently pull your navel up and in.",
+      "Hold this stomach vacuum for 8–10 seconds, then inhale smoothly and repeat."
     ],
-    illustrationType: 'hip_switches_9090',
-    defaultRepsOrTime: '8/side',
-    category: 'mobility',
+    "mistakes": [
+      "Chest breathing instead of expanding the lower ribcage and belly.",
+      "Tensing shoulders and neck.",
+      "Rushing the exhale."
+    ],
+    "illustrationType": "dead_bugs",
+    "defaultRepsOrTime": "1 min deep cycles",
+    "category": "pelvic"
   },
-  worlds_greatest_stretch: {
-    id: 'worlds_greatest_stretch',
-    name: "World's Greatest Stretch",
-    targetMuscles: ['Hip Mobility', 'Hamstrings', 'Back'],
-    equipment: 'Bodyweight',
-    cue: 'Lunge deep, drop inside elbow toward instep, rotate and open chest to the sky.',
-    instructions: [
-      "Step forward into a long runner's lunge with hands placed on the floor inside your front foot.",
-      'Squeeze the back glute to drive hip forward, sinking into the hip flexor stretch.',
-      'Drop your inside elbow down toward your front ankle, holding for 2 seconds.',
-      'Reach the same arm up toward the ceiling, rotating your thoracic spine and looking up at your hand.',
+  "slow_kegels": {
+    "id": "slow_kegels",
+    "name": "Slow Power Kegels",
+    "targetMuscles": [
+      "Pelvic Floor"
     ],
-    mistakes: [
-      'Letting front heel lift off the ground.',
-      'Sagging through the back leg without active glute engagement.',
-      'Forcing rotation from the lumbar spine instead of mid-back.',
+    "equipment": "Bodyweight",
+    "cue": "Engage and lift the pelvic floor like an elevator rising, hold 5s, release fully.",
+    "instructions": [
+      "Identify the pelvic floor muscles (the muscles used to stop urination mid-stream).",
+      "Contract and pull these muscles upward toward your navel with deliberate control.",
+      "Maintain a powerful squeeze for 5 full seconds without holding your breath.",
+      "Release slowly over 5 seconds, ensuring the muscles fully relax and drop before the next repetition."
     ],
-    illustrationType: 'worlds_greatest_stretch',
-    defaultRepsOrTime: '5/side',
-    category: 'mobility',
+    "mistakes": [
+      "Tensing glutes, inner thighs, or abdomen instead of isolated pelvic floor.",
+      "Holding breath during contraction.",
+      "Failing to let the pelvic floor fully drop and relax between reps."
+    ],
+    "illustrationType": "glute_bridge",
+    "defaultRepsOrTime": "10 reps (5s hold / 5s rest)",
+    "category": "pelvic"
   },
-  leg_swings: {
-    id: 'leg_swings',
-    name: 'Leg Swings',
-    targetMuscles: ['Hip Mobility', 'Hamstrings'],
-    equipment: 'Bodyweight',
-    cue: 'Hold a wall for balance, swing smoothly from the hip socket.',
-    instructions: [
-      'Stand beside a wall or sturdy support, holding it lightly for balance.',
-      'Swing your outside leg forward and backward in a smooth pendulum arc.',
-      'Keep torso upright and avoid hyperextending lower back on the backswing.',
-      'Perform forward/backward swings, then turn facing the wall for lateral side-to-side swings.',
+  "quick_flicks": {
+    "id": "quick_flicks",
+    "name": "Fast-Twitch Kegel Flicks",
+    "targetMuscles": [
+      "Pelvic Floor"
     ],
-    mistakes: [
-      'Arching lower back excessively on the backward swing.',
-      'Bending the torso forward and backward with the swing.',
-      'Forcing range of motion beyond natural comfortable hip mobility.',
+    "equipment": "Bodyweight",
+    "cue": "Fast snap contraction followed immediately by complete relaxation.",
+    "instructions": [
+      "Contract your pelvic floor muscles quickly and forcefully like flicking a switch.",
+      "Hold for only 1 second, then release immediately with equal speed.",
+      "Breathe naturally and maintain a steady cadence across all reps.",
+      "This trains the fast-twitch muscle fibers critical for pelvic stability and core reactivity."
     ],
-    illustrationType: 'leg_swings',
-    defaultRepsOrTime: '10 each way',
-    category: 'mobility',
+    "mistakes": [
+      "Squeezing abdominal muscles instead of the pelvic floor.",
+      "Incomplete release between rapid contractions.",
+      "Holding your breath."
+    ],
+    "illustrationType": "glute_bridge",
+    "defaultRepsOrTime": "15 quick snaps",
+    "category": "pelvic"
   },
-  deep_squat_hold: {
-    id: 'deep_squat_hold',
-    name: 'Deep Squat Hold',
-    targetMuscles: ['Hip Mobility', 'Quads', 'Calves'],
-    equipment: 'Bodyweight',
-    cue: 'Heels flat down, knees pushed outward, breathe into your belly.',
-    instructions: [
-      'Stand with feet shoulder-width apart, toes turned slightly out ~15-30 degrees.',
-      'Descend all the way down into your lowest comfortable squat position.',
-      'Bring palms together at heart center and press elbows gently against inner knees.',
-      'Keep chest elevated and spine tall while holding isometric depth.',
+  "deep_squat_breathing": {
+    "id": "deep_squat_breathing",
+    "name": "Deep Squat Pelvic Reset",
+    "targetMuscles": [
+      "Pelvic Floor",
+      "Hip Mobility",
+      "Glutes"
     ],
-    mistakes: [
-      'Heels lifting off the ground (elevate heels slightly if tight).',
-      'Knees collapsing inward.',
-      'Rounding the upper back completely.',
+    "equipment": "Bodyweight",
+    "cue": "Sit deep into your hips, chest tall, breathe air into the bottom of your pelvis.",
+    "instructions": [
+      "Drop down into a deep ass-to-grass bodyweight squat with heels flat on the floor (hold a doorframe if needed).",
+      "Press your elbows against the inside of your knees to pry hips open.",
+      "Take slow, deep nasal breaths, consciously directing the breath down into the pelvic bowl.",
+      "Feel the pelvic floor stretch, relax, and expand on every inhale."
     ],
-    illustrationType: 'deep_squat_hold',
-    defaultRepsOrTime: '30s × 2',
-    category: 'mobility',
+    "mistakes": [
+      "Heels lifting off the ground.",
+      "Rounding the spine forward into a hunch.",
+      "Holding tension in the pelvic floor instead of letting it drop."
+    ],
+    "illustrationType": "goblet_squat",
+    "defaultRepsOrTime": "1 min deep reset",
+    "category": "pelvic"
   },
-
-  // Evening Strength: Day A
-  goblet_squat: {
-    id: 'goblet_squat',
-    name: 'Goblet Squat',
-    targetMuscles: ['Quads', 'Glutes', 'Core'],
-    equipment: 'Dumbbells',
-    cue: 'Elbows inside knees at the bottom, chest tall, drive through your whole foot.',
-    instructions: [
-      'Hold a dumbbell vertically against your sternum with both hands cupping the top head.',
-      'Stand with feet slightly wider than shoulder-width, toes turned slightly out.',
-      'Hinge at hips and bend knees simultaneously, sitting down between your thighs.',
-      'Descend until thighs are parallel or below, touching elbows to the inside of your knees.',
-      'Drive evenly through midfoot and heels to stand back up, locking out glutes at the top.',
+  "hip_switches_9090": {
+    "id": "hip_switches_9090",
+    "name": "90/90 Hip Switches & Lift",
+    "targetMuscles": [
+      "Hip Mobility",
+      "Glutes"
     ],
-    mistakes: [
-      'Letting the dumbbell pull your upper back and chest into a slump.',
-      'Knees caving inward (valgus collapse) on the ascent.',
-      'Shifting weight onto toes and letting heels lift.',
+    "equipment": "Mat / Floor",
+    "cue": "Sit tall, rotate through both hip capsules smoothly without using hands.",
+    "instructions": [
+      "Sit on the floor with legs in 90/90 position: front knee bent at 90°, back knee at 90° behind you.",
+      "Keep your spine tall and lift front chest toward the front shin for a glute stretch.",
+      "Open the back knee as far as possible before letting the front knee follow, pivoting through the center.",
+      "Finish in the opposite 90/90 position with control and repeat."
     ],
-    illustrationType: 'goblet_squat',
-    defaultRepsOrTime: '4 × 8',
-    category: 'strength',
+    "mistakes": [
+      "Slumping shoulders and rounding the thoracic spine.",
+      "Rushing the transition without exploring end-range internal rotation.",
+      "Collapsing backward onto hands."
+    ],
+    "illustrationType": "hip_switches_9090",
+    "defaultRepsOrTime": "8 reps / side",
+    "category": "mobility"
   },
-  floor_press: {
-    id: 'floor_press',
-    name: 'Floor Press',
-    targetMuscles: ['Chest', 'Triceps', 'Shoulders'],
-    equipment: 'Dumbbells',
-    cue: 'Pause briefly on the floor each rep — no bouncing elbows off the ground.',
-    instructions: [
-      'Lie on the floor with knees bent and feet flat, dumbbells held over your chest with arms extended.',
-      'Tuck shoulder blades back and down into the floor to stabilize your shoulder girdle.',
-      'Lower the dumbbells with elbows angled ~45 degrees from your torso until your triceps gently touch the ground.',
-      'Pause for a dead stop (1 second) to eliminate stretch reflex, then press powerfully back to top.',
+  "worlds_greatest_stretch": {
+    "id": "worlds_greatest_stretch",
+    "name": "World's Greatest Stretch & Thoracic Opener",
+    "targetMuscles": [
+      "Hip Mobility",
+      "Hamstrings",
+      "Back"
     ],
-    mistakes: [
-      'Bouncing triceps or elbows aggressively off the floor.',
-      'Flaring elbows out at 90 degrees, straining the rotator cuffs.',
-      'Lifting hips or overarching the lower back.',
+    "equipment": "Mat / Floor",
+    "cue": "Lunge deep, drop elbow to instep, open your chest wide to the sky.",
+    "instructions": [
+      "Step into a deep forward lunge with hands on the floor inside your front foot.",
+      "Lower your inside elbow toward your front instep to deeply stretch hip flexors and groin.",
+      "Rotate your torso and reach that same hand toward the ceiling, following your hand with your eyes.",
+      "Place hand back down, push hips back to straighten front leg for a hamstring floss, then alternate."
     ],
-    illustrationType: 'floor_press',
-    defaultRepsOrTime: '4 × 8',
-    category: 'strength',
+    "mistakes": [
+      "Collapsing the back knee onto the floor instead of keeping back leg active.",
+      "Rushing the rotation without turning through the thoracic spine.",
+      "Letting the front heel lift off the ground."
+    ],
+    "illustrationType": "bulgarian_split_squat",
+    "defaultRepsOrTime": "5 reps / side",
+    "category": "mobility"
   },
-  bent_over_row: {
-    id: 'bent_over_row',
-    name: 'Bent-Over Row',
-    targetMuscles: ['Back', 'Lats', 'Biceps'],
-    equipment: 'Dumbbells',
-    cue: 'Flat back, pull the dumbbell to your hip pocket, squeeze shoulder blades.',
-    instructions: [
-      'Hold dumbbells with a neutral or overhand grip, feet hip-width apart.',
-      'Push your hips back into a 45-to-60 degree torso hinge while maintaining a flat, neutral spine.',
-      'Pull the dumbbells up toward your hip pockets by driving your elbows back.',
-      'Squeeze your lats and rhomboids at peak contraction for 1 second, then lower under control.',
+  "cossack_squat": {
+    "id": "cossack_squat",
+    "name": "Cossack Squat Lateral Flow",
+    "targetMuscles": [
+      "Hip Mobility",
+      "Quads",
+      "Glutes"
     ],
-    mistakes: [
-      'Rounding the spine or jerking torso upright to heave the weight.',
-      'Pulling dumbbells straight up to shoulders rather than back toward hips.',
-      'Using body momentum instead of controlled back contraction.',
+    "equipment": "Bodyweight",
+    "cue": "Sit deep into one hip, keep trailing heel down with toes pointed to the ceiling.",
+    "instructions": [
+      "Stand with feet in a wide sumo stance, toes angled slightly out.",
+      "Shift your weight to your right side and squat deep into the right hip while keeping right heel glued to the floor.",
+      "Keep the left leg fully extended with toes rotated upward toward the ceiling.",
+      "Drive through your right foot to glide across smoothly to the left side without standing all the way up."
     ],
-    illustrationType: 'bent_over_row',
-    defaultRepsOrTime: '3 × 10',
-    category: 'strength',
+    "mistakes": [
+      "Letting the working heel rise off the floor.",
+      "Rounding the lower back excessively.",
+      "Letting the working knee collapse inward."
+    ],
+    "illustrationType": "goblet_squat",
+    "defaultRepsOrTime": "6 reps / side",
+    "category": "mobility"
   },
-  lateral_raise: {
-    id: 'lateral_raise',
-    name: 'Lateral Raise',
-    targetMuscles: ['Shoulders'],
-    equipment: 'Dumbbells',
-    cue: 'Slight bend in elbows, lead with pinkies/elbows, zero torso swing.',
-    instructions: [
-      'Stand tall with dumbbells hanging at your sides or slightly in front of thighs.',
-      'Maintain a slight bend in your elbows and a subtle forward torso tilt (~10 degrees).',
-      'Raise the dumbbells outward in the scapular plane until upper arms are parallel to the floor.',
-      'Pour out the pitcher slightly (lead with elbows), pause at shoulder height, and lower slowly.',
+  "leg_swings": {
+    "id": "leg_swings",
+    "name": "Standing Leg Swings (Front/Back & Lateral)",
+    "targetMuscles": [
+      "Hip Mobility",
+      "Hamstrings",
+      "Glutes"
     ],
-    mistakes: [
-      'Shrugging traps up to neck to assist the lift.',
-      'Swinging hips or using leg drive to throw weights up.',
-      'Lifting higher than shoulder level, pinching the acromion.',
+    "equipment": "Bodyweight / Wall",
+    "cue": "Keep your torso rigid, swing fluidly from the hip socket, not the spine.",
+    "instructions": [
+      "Stand beside a wall or chair for balance, weight centered on your standing leg.",
+      "Swing your free leg forward and backward in a smooth pendulum motion, increasing range gradually.",
+      "Turn and face the wall to swing the leg side-to-side across your body to mobilize adductors/abductors.",
+      "Keep your standing foot planted and core braced so only the hip moves."
     ],
-    illustrationType: 'lateral_raise',
-    defaultRepsOrTime: '3 × 12',
-    category: 'strength',
+    "mistakes": [
+      "Arching lower back when swinging backward.",
+      "Bending the knee excessively.",
+      "Twisting the whole torso with the swing."
+    ],
+    "illustrationType": "bulgarian_split_squat",
+    "defaultRepsOrTime": "10 reps each way / side",
+    "category": "mobility"
   },
-  romanian_deadlift: {
-    id: 'romanian_deadlift',
-    name: 'Romanian Deadlift (RDL)',
-    targetMuscles: ['Hamstrings', 'Glutes', 'Back'],
-    equipment: 'Dumbbells',
-    cue: 'Hips back to the wall, soft knees, dumbbells skim your shins.',
-    instructions: [
-      'Stand tall holding dumbbells in front of thighs with shoulders set back and core braced.',
-      'With soft, unlocked knees, push your hips straight back as if touching a wall behind you.',
-      'Slide the dumbbells close along your thighs and shins until you feel a deep stretch in your hamstrings.',
-      'Keep back flat and neutral. Drive hips forward and squeeze glutes to return to standing.',
+  "deep_squat_hold": {
+    "id": "deep_squat_hold",
+    "name": "Deep Squat Pry & Ankle Floss",
+    "targetMuscles": [
+      "Hip Mobility",
+      "Calves",
+      "Quads"
     ],
-    mistakes: [
-      'Bending knees like a squat instead of hinging back at the hips.',
-      'Letting the dumbbells drift far away from legs, overloading the lower back.',
-      'Rounding lower spine at the bottom of the stretch.',
+    "equipment": "Bodyweight",
+    "cue": "Heels down, pry knees apart with elbows, gently shift weight ankle to ankle.",
+    "instructions": [
+      "Lower down into your deepest comfortable squat position.",
+      "Place palms together and use elbows to push knees outward over your toes.",
+      "Keep your chest proud and spine long, avoiding collapsing forward.",
+      "Gently shift weight slightly from left foot to right foot to floss ankle dorsiflexion."
     ],
-    illustrationType: 'romanian_deadlift',
-    defaultRepsOrTime: '4 × 8 / 2 × 12',
-    category: 'strength',
+    "mistakes": [
+      "Allowing heels to lift off the floor.",
+      "Slumping shoulders forward into a hunch.",
+      "Holding breath."
+    ],
+    "illustrationType": "goblet_squat",
+    "defaultRepsOrTime": "45s × 2 holds",
+    "category": "mobility"
   },
-  hammer_curls: {
-    id: 'hammer_curls',
-    name: 'Hammer Curls',
-    targetMuscles: ['Biceps', 'Shoulders'],
-    equipment: 'Dumbbells',
-    cue: 'Elbows pinned to your sides, palms facing each other, no body swing.',
-    instructions: [
-      'Stand tall holding dumbbells at your sides with neutral grip (palms facing inward).',
-      'Pin your elbows firmly against your ribcage.',
-      'Curl the dumbbells up toward your front shoulders while maintaining neutral wrist alignment.',
-      'Squeeze the brachialis and biceps at the top, then lower smoothly over 2-3 seconds.',
+  "pigeon_stretch": {
+    "id": "pigeon_stretch",
+    "name": "Pigeon Pose Glute Opener",
+    "targetMuscles": [
+      "Hip Mobility",
+      "Glutes"
     ],
-    mistakes: [
-      'Swinging torso or thrusting hips to gain momentum.',
-      'Allowing elbows to drift forward or flare out during the curl.',
-      'Letting the weights drop quickly on the negative.',
+    "equipment": "Mat / Floor",
+    "cue": "Shin across your mat, hips square to the floor, sink deep into the glute.",
+    "instructions": [
+      "From a push-up or all-fours position, bring your right knee forward and angle right shin across the mat.",
+      "Slide your left leg straight back behind you, pointing toes backward.",
+      "Square your hips toward the floor and lower your chest down onto your forearms.",
+      "Take deep breaths, letting the outer glute and piriformis surrender and lengthen."
     ],
-    illustrationType: 'hammer_curls',
-    defaultRepsOrTime: '3 × 10',
-    category: 'strength',
+    "mistakes": [
+      "Rolling weight onto the right hip cheek instead of keeping hips square.",
+      "Forcing the front shin to 90 degrees if knee experiences pain.",
+      "Tensing the upper body instead of relaxing forward."
+    ],
+    "illustrationType": "glute_bridge",
+    "defaultRepsOrTime": "45s / side",
+    "category": "mobility"
   },
-
-  // Evening Strength: Day B
-  close_grip_press: {
-    id: 'close_grip_press',
-    name: 'Close-Grip Press',
-    targetMuscles: ['Triceps', 'Chest', 'Shoulders'],
-    equipment: 'Dumbbells',
-    cue: 'Palms facing each other, dumbbells touching or close, elbows tucked ~45 degrees.',
-    instructions: [
-      'Lie on the floor or bench holding dumbbells over chest with a neutral grip (palms facing each other).',
-      'Keep dumbbells pressed together or a few inches apart.',
-      'Lower the dumbbells toward your lower chest / upper sternum, tucking elbows tight along ribcage.',
-      'Press up powerfully, squeezing triceps and inner chest at full lockout.',
+  "couch_stretch": {
+    "id": "couch_stretch",
+    "name": "Couch Stretch / Hip Flexor & Quad Opener",
+    "targetMuscles": [
+      "Hip Mobility",
+      "Quads"
     ],
-    mistakes: [
-      'Flaring elbows outward, shifting emphasis away from triceps.',
-      'Lowering the weight onto the face or throat instead of lower chest.',
-      'Losing control and letting dumbbells separate erratically.',
+    "equipment": "Wall / Chair",
+    "cue": "Back shin flat against wall, squeeze glute hard to violently unlock the front hip.",
+    "instructions": [
+      "Back up to a wall or couch, placing one knee in the corner and shin flat against the wall.",
+      "Step the opposite foot forward into a lunge position with knee at 90 degrees.",
+      "Squeeze the glute on the back leg as hard as possible and push hips forward.",
+      "Slowly bring your torso upright, feeling an intense, restorative stretch through the quad and psoas."
     ],
-    illustrationType: 'close_grip_press',
-    defaultRepsOrTime: '4 × 8',
-    category: 'strength',
+    "mistakes": [
+      "Hyperextending the lower back instead of squeezing the glute.",
+      "Letting the back knee slide away from the wall.",
+      "Leaning forward to avoid the hip flexor stretch."
+    ],
+    "illustrationType": "bulgarian_split_squat",
+    "defaultRepsOrTime": "45s / side",
+    "category": "mobility"
   },
-  gorilla_rows: {
-    id: 'gorilla_rows',
-    name: 'Gorilla Rows',
-    targetMuscles: ['Back', 'Lats', 'Core', 'Hamstrings'],
-    equipment: 'Dumbbells',
-    cue: 'Wide athletic stance, flat back, row to hip, alternate sides without twisting.',
-    instructions: [
-      'Stand with feet wide outside shoulder-width, dumbbells on the floor between your feet.',
-      'Hinge deeply at the hips into a gorilla stance with a flat back and chest proudly lifted.',
-      'One dumbbell rests on the floor providing a stable push-point as you row the opposite dumbbell to your hip.',
-      'Lower the weight back to the floor with control and immediately row the opposite side.',
+  "goblet_squat": {
+    "id": "goblet_squat",
+    "name": "Dumbbell Goblet Squat",
+    "targetMuscles": [
+      "Quads",
+      "Glutes",
+      "Core"
     ],
-    mistakes: [
-      'Rounding the lower back in the hinged stance.',
-      'Twisting the shoulders or hips excessively during the pull.',
-      'Standing too upright and losing lat engagement.',
+    "equipment": "Dumbbells",
+    "cue": "Hold dumbbell vertically at sternum, sit between your heels, explode upward.",
+    "instructions": [
+      "Stand with feet shoulder-width apart, holding a heavy dumbbell cupped vertically at chest height.",
+      "Inhale and brace your core, then sit hips back and down between your knees.",
+      "Drive knees outward in line with toes until hip crease is parallel with or below knees.",
+      "Drive powerfully through your midfoot and heels to return to standing, locking glutes at top."
     ],
-    illustrationType: 'gorilla_rows',
-    defaultRepsOrTime: '3 × 10',
-    category: 'strength',
+    "mistakes": [
+      "Rounding the upper back and letting dumbbell pull torso forward.",
+      "Allowing knees to cave inward on the ascent.",
+      "Lifting heels off the ground."
+    ],
+    "illustrationType": "goblet_squat",
+    "defaultRepsOrTime": "4 × 10",
+    "category": "strength"
   },
-  arnold_press: {
-    id: 'arnold_press',
-    name: 'Arnold Press',
-    targetMuscles: ['Shoulders', 'Triceps'],
-    equipment: 'Dumbbells',
-    cue: 'Rotate palms as you press, brace your core, smooth continuous motion.',
-    instructions: [
-      'Hold dumbbells at shoulder height with palms facing your face (contracted curl position).',
-      'As you press upward, rotate your hands outward smoothly so your palms face forward at lockout overhead.',
-      'Pause overhead with biceps aligned with ears.',
-      'Reverse the rotational path precisely on the descent back to starting chin-level position.',
+  "floor_press": {
+    "id": "floor_press",
+    "name": "Dumbbell Floor Press",
+    "targetMuscles": [
+      "Chest",
+      "Triceps",
+      "Shoulders"
     ],
-    mistakes: [
-      'Arching lower back to push heavy weights overhead.',
-      'Separating the rotation and the press into two jerky, disjointed movements.',
-      'Letting elbows flare out wildly.',
+    "equipment": "Dumbbells",
+    "cue": "Pause triceps on the floor for 1 second, drive dumbbells up and inward.",
+    "instructions": [
+      "Lie flat on the floor with knees bent and feet flat, dumbbells positioned at your chest.",
+      "Press dumbbells straight up over your chest until elbows are locked.",
+      "Lower weights under control with elbows flared at roughly 45 degrees until triceps rest on the floor.",
+      "Pause for 1 second on the floor to eliminate bounce, then press powerfully back to lockout."
     ],
-    illustrationType: 'arnold_press',
-    defaultRepsOrTime: '3 × 10',
-    category: 'strength',
+    "mistakes": [
+      "Bouncing triceps or elbows violently off the floor.",
+      "Flaring elbows out at 90 degrees, stressing the shoulder capsule.",
+      "Lifting hips off the floor to cheat the weight up."
+    ],
+    "illustrationType": "floor_press",
+    "defaultRepsOrTime": "4 × 10",
+    "category": "strength"
   },
-  bulgarian_split_squat: {
-    id: 'bulgarian_split_squat',
-    name: 'Bulgarian Split Squat',
-    targetMuscles: ['Quads', 'Glutes'],
-    equipment: 'Chair / Bench',
-    cue: 'Rear foot laces on a chair/bench, knee tracks over toes, sink straight down.',
-    instructions: [
-      'Stand 2-3 feet in front of a sturdy chair or bench and place top of rear foot flat on the surface.',
-      'Hold dumbbells at your sides or use bodyweight for stability.',
-      'Descend by bending both knees, dropping back knee toward the floor while torso tilts slightly forward.',
-      'Sink until front thigh is parallel to the ground, then drive through front heel to stand up.',
+  "romanian_deadlift": {
+    "id": "romanian_deadlift",
+    "name": "Dumbbell Romanian Deadlift (RDL)",
+    "targetMuscles": [
+      "Hamstrings",
+      "Glutes",
+      "Back"
     ],
-    mistakes: [
-      'Front foot placed too close to bench, causing heel to peel off the floor.',
-      'Pushing weight off the rear toe instead of loading front working leg.',
-      'Front knee caving inward during descent.',
+    "equipment": "Dumbbells",
+    "cue": "Push hips back like closing a car door with your butt, shave your shins with the weights.",
+    "instructions": [
+      "Stand tall holding dumbbells in front of your thighs with an overhand grip.",
+      "Keep a soft bend in knees, pin shoulder blades back, and push hips backward as far as possible.",
+      "Trace dumbbells down tight against your shins until you feel a deep stretch in hamstrings.",
+      "Drive hips forward and squeeze glutes aggressively to return to standing lockout."
     ],
-    illustrationType: 'bulgarian_split_squat',
-    defaultRepsOrTime: '3 × 8/side',
-    category: 'strength',
+    "mistakes": [
+      "Squatting down instead of hinging hips backward.",
+      "Allowing lower back to round.",
+      "Letting dumbbells drift away from legs."
+    ],
+    "illustrationType": "romanian_deadlift",
+    "defaultRepsOrTime": "4 × 10",
+    "category": "strength"
   },
-  upright_row: {
-    id: 'upright_row',
-    name: 'Upright Row',
-    targetMuscles: ['Shoulders', 'Back'],
-    equipment: 'Dumbbells',
-    cue: 'Lead with elbows, keep dumbbells close to body, stop at mid-chest height.',
-    instructions: [
-      'Stand with feet shoulder-width apart holding dumbbells in front of thighs with palms facing you.',
-      'Pull the dumbbells upward along the line of your body, leading with high elbows.',
-      'Stop when dumbbells reach mid-chest level and elbows are at shoulder height.',
-      'Pause for 1 second, then lower under complete control.',
+  "gorilla_rows": {
+    "id": "gorilla_rows",
+    "name": "Dumbbell Gorilla Rows",
+    "targetMuscles": [
+      "Back",
+      "Lats",
+      "Core"
     ],
-    mistakes: [
-      'Pulling too high (above shoulders), causing shoulder impingement.',
-      'Allowing wrists to lead the pull instead of high elbows.',
-      'Leaning backward to cheat the weight up.',
+    "equipment": "Dumbbells",
+    "cue": "Wide hinge stance, push one dumbbell into the floor while ripping the other to your pocket.",
+    "instructions": [
+      "Place two dumbbells on the floor and stand over them with feet wide in a deep hinge position.",
+      "Keep your back flat and chest parallel to the floor.",
+      "Press your left hand down into one dumbbell for leverage while driving the right elbow straight up.",
+      "Lower under control, tap the floor, and immediately row with the opposite side."
     ],
-    illustrationType: 'upright_row',
-    defaultRepsOrTime: '3 × 12',
-    category: 'strength',
+    "mistakes": [
+      "Excessively rotating and twisting the torso to cheat the row.",
+      "Rounding the lumbar spine.",
+      "Standing up too high instead of maintaining a solid deep hinge."
+    ],
+    "illustrationType": "bent_over_row",
+    "defaultRepsOrTime": "4 × 10 (5/side alternating)",
+    "category": "strength"
   },
-
-  // Evening Strength: Day C
-  renegade_rows: {
-    id: 'renegade_rows',
-    name: 'Renegade Rows',
-    targetMuscles: ['Core', 'Back', 'Chest', 'Shoulders'],
-    equipment: 'Dumbbells',
-    cue: 'Feet wide for base, hips level like water glass on your back — row without rotating.',
-    instructions: [
-      'Set up in a high push-up plank gripping hex dumbbells directly under shoulders.',
-      'Widen feet slightly wider than shoulder-width to create a stable anti-rotation base.',
-      'Brace core and glutes tightly. Row one dumbbell up to your hip pocket while stabilizing through the other arm.',
-      'Return dumbbell smoothly to the floor and repeat with the other arm without letting hips twist.',
+  "devil_press": {
+    "id": "devil_press",
+    "name": "Dumbbell Devil Press",
+    "targetMuscles": [
+      "Cardio / Full Body",
+      "Shoulders",
+      "Chest",
+      "Hamstrings"
     ],
-    mistakes: [
-      'Twisting hips or shifting weight aggressively to the side.',
-      'Sagging lower back or piking hips into the air.',
-      'Using circular dumbbells that can roll and cause wrist sprain.',
+    "equipment": "Dumbbells",
+    "cue": "Burpee between dumbbells, jump feet wide, swing and snatch overhead in one fluid arc.",
+    "instructions": [
+      "Hold dumbbells and drop down into a burpee, lowering chest completely to the floor between weights.",
+      "Explosively jump feet wide outside the dumbbells into a strong hinged stance.",
+      "In one continuous, athletic motion, swing dumbbells between legs and snap hips to drive them directly overhead.",
+      "Lock out overhead with arms straight, then lower weights to floor and immediately begin next rep."
     ],
-    illustrationType: 'renegade_rows',
-    defaultRepsOrTime: '3 × 8/side',
-    category: 'strength',
+    "mistakes": [
+      "Curling the dumbbells instead of using explosive hip drive.",
+      "Rounding lower back during the snatch transition.",
+      "Pacing too slowly — maintain athletic rhythm."
+    ],
+    "illustrationType": "arnold_press",
+    "defaultRepsOrTime": "3 × 8 reps",
+    "category": "athletic"
   },
-  mike_tyson_pushups: {
-    id: 'mike_tyson_pushups',
-    name: 'Mike Tyson Push-ups',
-    targetMuscles: ['Shoulders', 'Chest', 'Quads', 'Core'],
-    equipment: 'Mat / Floor',
-    cue: 'Crouch back like a loaded spring, explode forward into push-up, land soft.',
-    instructions: [
-      'Start in a standard push-up position with feet pushed against a sturdy wall or wide on the floor.',
-      'Bend your knees and push hips back toward heels in a loaded beast / deep crouch position.',
-      'Drive powerfully forward through legs into a low push-up position hovering off the floor.',
-      'Press your chest and arms back up, immediately recoiling back into the crouch.',
+  "lateral_raise": {
+    "id": "lateral_raise",
+    "name": "Dumbbell Lateral Raise",
+    "targetMuscles": [
+      "Shoulders"
     ],
-    mistakes: [
-      'Slapping chest on the floor.',
-      'Losing abdominal brace and hyperextending lumbar spine during forward surge.',
-      'Rushing the movement without full range of motion.',
+    "equipment": "Dumbbells",
+    "cue": "Slight torso forward lean, lead with elbows, pour the pitchers at the top.",
+    "instructions": [
+      "Stand tall with dumbbells at sides, hinge forward 5–10 degrees at the hips.",
+      "With a slight bend in elbows, raise arms out to the sides in the scapular plane.",
+      "Lead with your elbows and ensure wrists do not rise above elbows at parallel.",
+      "Lower weights slowly over 2–3 seconds to maintain constant tension on the side delts."
     ],
-    illustrationType: 'mike_tyson_pushups',
-    defaultRepsOrTime: '3 × 8',
-    category: 'strength',
+    "mistakes": [
+      "Using swinging body momentum to hoist weights up.",
+      "Shrugging traps up toward ears.",
+      "Lifting hands higher than elbows."
+    ],
+    "illustrationType": "lateral_raise",
+    "defaultRepsOrTime": "3 × 15 reps",
+    "category": "strength"
   },
-  single_leg_rdl: {
-    id: 'single_leg_rdl',
-    name: 'Single-Leg RDL',
-    targetMuscles: ['Hamstrings', 'Glutes', 'Core'],
-    equipment: 'Dumbbells',
-    cue: 'Soft standing knee, hinge back toward wall behind you, keep hips square.',
-    instructions: [
-      'Stand on one leg with a soft, unlocked knee, holding a dumbbell in the opposite hand.',
-      'Hinge forward from the hip while extending your free leg straight back in line with your spine.',
-      'Lower the dumbbell toward your standing shin until you feel tension in your working hamstring.',
-      "Keep hips square to the floor (don't open up pelvis). Squeeze glute to stand tall.",
+  "hammer_curls": {
+    "id": "hammer_curls",
+    "name": "Dumbbell Hammer Curls",
+    "targetMuscles": [
+      "Biceps",
+      "Forearms"
     ],
-    mistakes: [
-      'Rotating the pelvis open toward the ceiling.',
-      'Rounding upper back or dropping the weight far from leg.',
-      'Locking out standing knee completely.',
+    "equipment": "Dumbbells",
+    "cue": "Palms facing each other, pin elbows to ribs, squeeze the forearm and bicep peak.",
+    "instructions": [
+      "Stand upright holding dumbbells with a neutral grip (palms facing inward toward each other).",
+      "Pin elbows securely against your torso and keep upper arms motionless.",
+      "Curl dumbbells upward simultaneously until forearms compress against biceps.",
+      "Squeeze hard at the peak for 1 second, then lower under control to full extension."
     ],
-    illustrationType: 'single_leg_rdl',
-    defaultRepsOrTime: '3 × 8/side',
-    category: 'strength',
+    "mistakes": [
+      "Swinging torso backward to generate momentum.",
+      "Letting elbows drift forward away from the body.",
+      "Dropping the weight quickly without controlling the eccentric phase."
+    ],
+    "illustrationType": "hammer_curls",
+    "defaultRepsOrTime": "3 × 12 reps",
+    "category": "strength"
   },
-  glute_bridge: {
-    id: 'glute_bridge',
-    name: 'Glute Bridge',
-    targetMuscles: ['Glutes', 'Hamstrings', 'Core'],
-    equipment: 'Mat / Floor',
-    cue: 'Ribs down, drive through heels, squeeze glutes hard for 2s at the top.',
-    instructions: [
-      'Lie flat on your back with knees bent and feet flat on the floor, hip-width apart.',
-      'Tuck pelvis into posterior tilt, locking ribs down over pelvis.',
-      'Drive through your heels to bridge your hips upward until thighs and torso align.',
-      'Hold and squeeze glutes aggressively for 2 seconds at the peak, then lower slowly.',
+  "db_clean_push_press": {
+    "id": "db_clean_push_press",
+    "name": "Dumbbell Clean & Push Press",
+    "targetMuscles": [
+      "Shoulders",
+      "Glutes",
+      "Hamstrings",
+      "Cardio / Full Body"
     ],
-    mistakes: [
-      'Overextending the lower back at the top instead of squeezing glutes.',
-      'Pushing through the toes instead of the heels.',
-      'Letting knees splay out or cave in.',
+    "equipment": "Dumbbells",
+    "cue": "Hang clean to shoulders, quick dip of knees, launch weights overhead.",
+    "instructions": [
+      "Hold dumbbells at mid-thigh in a slight hinge position.",
+      "Violently extend hips and shrug shoulders to clean dumbbells up onto your shoulders.",
+      "Immediately dip knees 2–3 inches into a quarter squat, then explosively drive legs up.",
+      "Channel the upward momentum to press the dumbbells overhead into a locked-out position."
     ],
-    illustrationType: 'glute_bridge',
-    defaultRepsOrTime: '3 × 12',
-    category: 'strength',
+    "mistakes": [
+      "Reverse curling the clean instead of using hip explosion.",
+      "Arching lower back backward during the press.",
+      "Pausing too long between the clean and the push press."
+    ],
+    "illustrationType": "arnold_press",
+    "defaultRepsOrTime": "4 × 8 reps",
+    "category": "athletic"
   },
-  rear_delt_fly: {
-    id: 'rear_delt_fly',
-    name: 'Rear Delt Fly',
-    targetMuscles: ['Shoulders', 'Back'],
-    equipment: 'Dumbbells',
-    cue: 'Bent over deep, slight elbow bend, lead with rear shoulders.',
-    instructions: [
-      'Stand with feet hip-width, hinge at hips until torso is nearly parallel to the floor.',
-      'Hold light dumbbells hanging under chest with palms facing each other.',
-      'With a fixed soft bend in elbows, raise arms out to the sides in a wide arc.',
-      'Squeeze the back of your shoulders at the top for 1 second, then lower under control.',
+  "single_leg_rdl": {
+    "id": "single_leg_rdl",
+    "name": "Single-Leg Dumbbell RDL",
+    "targetMuscles": [
+      "Hamstrings",
+      "Glutes",
+      "Core"
     ],
-    mistakes: [
-      'Using heavy weights and swinging the torso.',
-      'Leading with hands instead of elbows.',
-      'Shrugging traps and neck.',
+    "equipment": "Dumbbells",
+    "cue": "Kick rear heel straight back like a lever, hinge until chest is parallel to floor.",
+    "instructions": [
+      "Hold a dumbbell in one or both hands, balancing on your working leg with a soft knee.",
+      "Hinge forward from the hip, reaching your non-working leg straight behind you in line with your spine.",
+      "Lower dumbbell toward the floor until you feel maximum tension in the working hamstring.",
+      "Drive through the working heel and fire your glute to return to an upright standing posture."
     ],
-    illustrationType: 'rear_delt_fly',
-    defaultRepsOrTime: '3 × 12',
-    category: 'strength',
+    "mistakes": [
+      "Opening or flaring the back hip toward the ceiling (keep hips square to floor).",
+      "Rounding the spine.",
+      "Locking out the working knee stiffly."
+    ],
+    "illustrationType": "romanian_deadlift",
+    "defaultRepsOrTime": "3 × 8/side",
+    "category": "strength"
   },
-  jump_squats: {
-    id: 'jump_squats',
-    name: 'Jump Squats',
-    targetMuscles: ['Quads', 'Glutes', 'Calves', 'Cardio / Full Body'],
-    equipment: 'Bodyweight',
-    cue: 'Explode up, land soft toe-to-heel, absorb into next squat.',
-    instructions: [
-      'Stand with feet shoulder-width apart, descend into a quarter or half squat.',
-      'Swing arms and explode upward through your hips, knees, and ankles.',
-      'Reach peak jump height and land quietly on balls of feet, decelerating smoothly into the next squat.',
+  "db_front_squat": {
+    "id": "db_front_squat",
+    "name": "Dual Dumbbell Front Squat",
+    "targetMuscles": [
+      "Quads",
+      "Glutes",
+      "Core"
     ],
-    mistakes: [
-      'Landing stiff-legged with a heavy thump.',
-      'Letting knees cave inward upon landing.',
-      'Losing balance backwards.',
+    "equipment": "Dumbbells",
+    "cue": "Rest dumbbells on front delts, drive elbows high, sit straight down between ankles.",
+    "instructions": [
+      "Clean two dumbbells onto your shoulders, resting one end on your front delts with elbows held high.",
+      "Stand shoulder-width apart, brace your abs, and squat down deep while keeping torso ultra-upright.",
+      "Descend until thighs break parallel, keeping elbows elevated to prevent weights pulling you forward.",
+      "Drive out of the hole aggressively through the whole foot."
     ],
-    illustrationType: 'jump_squats',
-    defaultRepsOrTime: '5 min EMOM — 10 reps',
-    category: 'cardio',
+    "mistakes": [
+      "Dropping elbows down, which collapses the chest forward.",
+      "Lifting heels off the ground.",
+      "Failing to reach full depth."
+    ],
+    "illustrationType": "goblet_squat",
+    "defaultRepsOrTime": "3 × 10 reps",
+    "category": "strength"
   },
+  "bent_over_row": {
+    "id": "bent_over_row",
+    "name": "Dumbbell Bent-Over Row",
+    "targetMuscles": [
+      "Back",
+      "Lats",
+      "Biceps"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Hinged at 45°, pull elbows toward your hip pockets, squeeze shoulder blades.",
+    "instructions": [
+      "Hinge forward at the hips until your torso is at roughly 45 degrees, back flat, knees soft.",
+      "Hold dumbbells hanging at arms length with palms facing each other.",
+      "Drive elbows up and back toward your hip pockets, pulling dumbbells to the lower ribcage.",
+      "Squeeze your lats and middle back hard at the peak, then lower weights with full control."
+    ],
+    "mistakes": [
+      "Rounding lower back or standing too upright.",
+      "Yanking weight with body momentum.",
+      "Shrugging shoulders into neck instead of using lats."
+    ],
+    "illustrationType": "bent_over_row",
+    "defaultRepsOrTime": "3 × 10 reps",
+    "category": "strength"
+  },
+  "renegade_rows": {
+    "id": "renegade_rows",
+    "name": "Dumbbell Renegade Rows into Push-Up",
+    "targetMuscles": [
+      "Back",
+      "Chest",
+      "Core",
+      "Triceps"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Feet wide for stability, row dumbbell without rotating hips, drop into a strict push-up.",
+    "instructions": [
+      "Set up in a push-up position with hands gripping hex dumbbells and feet placed wider than shoulder-width.",
+      "Lock core rigid, press left dumbbell into floor and row right dumbbell to your hip. Return under control.",
+      "Row left dumbbell to hip and return under control.",
+      "Perform a full, strict push-up down to dumbbell handle height and press back up. That is 1 rep."
+    ],
+    "mistakes": [
+      "Allowing hips to rotate or sway side-to-side during the rows.",
+      "Piking hips into the air.",
+      "Sagging lumbar spine during the push-up."
+    ],
+    "illustrationType": "bent_over_row",
+    "defaultRepsOrTime": "3 × 8 reps / side",
+    "category": "athletic"
+  },
+  "db_overhead_tricep": {
+    "id": "db_overhead_tricep",
+    "name": "Overhead Dumbbell Tricep Extension",
+    "targetMuscles": [
+      "Triceps"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Elbows pointing forward and tucked in, full deep stretch behind neck, flare-less press.",
+    "instructions": [
+      "Stand or sit tall, holding one heavy dumbbell vertically overhead with both hands cupping the top plate.",
+      "Keeping upper arms pinned close to your ears, lower the dumbbell behind your head until forearms touch biceps.",
+      "Feel a deep stretch in the long head of the triceps at the bottom.",
+      "Contract triceps powerfully to press the weight back up to full overhead lockout."
+    ],
+    "mistakes": [
+      "Flaring elbows outward away from head.",
+      "Arching lower back to compensate for poor shoulder mobility.",
+      "Shortchanging the deep stretch at the bottom."
+    ],
+    "illustrationType": "arnold_press",
+    "defaultRepsOrTime": "3 × 12 reps",
+    "category": "strength"
+  },
+  "bicep_curls": {
+    "id": "bicep_curls",
+    "name": "Supinating Dumbbell Bicep Curls",
+    "targetMuscles": [
+      "Biceps",
+      "Forearms"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Start neutral, rotate palms up and outward at peak for maximum bicep ball contraction.",
+    "instructions": [
+      "Stand tall with dumbbells hanging at sides, palms facing inward.",
+      "As you curl dumbbells upward, rotate wrists so palms face the ceiling by mid-repetition.",
+      "At the top of the curl, turn your pinky finger slightly outward to maximize the bicep peak contraction.",
+      "Lower slowly over 3 seconds, untwisting wrists back to neutral at the bottom."
+    ],
+    "mistakes": [
+      "Swinging hips or leaning back.",
+      "Moving elbows forward instead of keeping them anchored at sides.",
+      "Failing to fully supinate the wrists."
+    ],
+    "illustrationType": "hammer_curls",
+    "defaultRepsOrTime": "3 × 12 reps",
+    "category": "strength"
+  },
+  "bulgarian_split_squat": {
+    "id": "bulgarian_split_squat",
+    "name": "Bulgarian Split Squat",
+    "targetMuscles": [
+      "Quads",
+      "Glutes",
+      "Hamstrings"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Rear laces flat on bench, sink straight down, drive through front heel.",
+    "instructions": [
+      "Stand 2 feet in front of a bench or chair, resting top of rear foot flat on the surface.",
+      "Hold dumbbells at sides with tall posture, brace core, and lower hips down and slightly back.",
+      "Descend until front thigh is parallel to floor and rear knee hovers just above ground.",
+      "Drive aggressively through front heel and midfoot to return to top without locking out fully."
+    ],
+    "mistakes": [
+      "Front foot placed too close, causing heel to peel off floor.",
+      "Torso collapsing forward onto front quad.",
+      "Pushing through the rear foot instead of loading the front leg."
+    ],
+    "illustrationType": "bulgarian_split_squat",
+    "defaultRepsOrTime": "3 × 8/side",
+    "category": "strength"
+  },
+  "close_grip_press": {
+    "id": "close_grip_press",
+    "name": "Close-Grip Dumbbell Floor Press",
+    "targetMuscles": [
+      "Triceps",
+      "Chest"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Squeeze dumbbells together touching above chest, keep them glued all the way down and up.",
+    "instructions": [
+      "Lie on floor with knees bent and hold dumbbells pressed firmly together over your mid-chest.",
+      "Keep dumbbells actively crushed together as you lower until your elbows tap the floor.",
+      "Pause for a split second on the floor while maintaining continuous inward chest and tricep pressure.",
+      "Press dumbbells back up explosively, squeezing triceps and inner chest at the top."
+    ],
+    "mistakes": [
+      "Allowing dumbbells to separate apart.",
+      "Bouncing elbows off floor.",
+      "Flaring elbows out instead of keeping them tucked close to torso."
+    ],
+    "illustrationType": "floor_press",
+    "defaultRepsOrTime": "3 × 10 reps",
+    "category": "strength"
+  },
+  "arnold_press": {
+    "id": "arnold_press",
+    "name": "Arnold Press",
+    "targetMuscles": [
+      "Shoulders",
+      "Triceps"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Palms face chest at bottom, rotate 180 degrees into full overhead press.",
+    "instructions": [
+      "Hold dumbbells at shoulder level with elbows tucked and palms facing your chest.",
+      "As you press upward, rotate wrists so palms face forward by the time you reach mid-press.",
+      "Lock out overhead with arms straight and bicep beside ear.",
+      "Reverse the rotational movement under control as you lower back to starting position."
+    ],
+    "mistakes": [
+      "Arching lower back to push weights overhead.",
+      "Rotating too early before weights begin rising.",
+      "Dropping dumbbells quickly without controlling the descent."
+    ],
+    "illustrationType": "arnold_press",
+    "defaultRepsOrTime": "3 × 10 reps",
+    "category": "strength"
+  },
+  "woodchoppers": {
+    "id": "woodchoppers",
+    "name": "Dumbbell Rotational Woodchoppers",
+    "targetMuscles": [
+      "Obliques",
+      "Core",
+      "Shoulders"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Pivot back foot, swing dumbbell diagonally across torso with athletic hip drive.",
+    "instructions": [
+      "Stand with feet wider than shoulder-width, holding one dumbbell with both hands outside your right hip.",
+      "Pivot on your right ball of foot and rotate your torso, swinging dumbbell diagonally up across chest.",
+      "Lock arms out over your left shoulder with core clamped tight.",
+      "Control the descent back down to the right hip and repeat for all reps before switching sides."
+    ],
+    "mistakes": [
+      "Swinging strictly with arms instead of driving from the hips and obliques.",
+      "Failing to pivot the rear foot, placing shearing force on the knee.",
+      "Rounding the spine."
+    ],
+    "illustrationType": "arnold_press",
+    "defaultRepsOrTime": "3 × 10/side",
+    "category": "athletic"
+  },
+  "farmers_carry": {
+    "id": "farmers_carry",
+    "name": "Dumbbell Farmer's March",
+    "targetMuscles": [
+      "Core",
+      "Forearms",
+      "Traps",
+      "Glutes"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Heavy dumbbells at sides, tall posture, march with high knees and zero sway.",
+    "instructions": [
+      "Pick up your heaviest dumbbells and stand tall with shoulders pulled down and back.",
+      "Brace your abdominal wall and March in place, lifting each knee up to hip height under control.",
+      "Maintain an unbroken vertical spine without tilting or swaying from side to side.",
+      "Crush the dumbbell handles to build monstrous forearm grip strength."
+    ],
+    "mistakes": [
+      "Shrugging shoulders into ears.",
+      "Slumping chest forward.",
+      "Walking or marching with swaying, sloppy hips."
+    ],
+    "illustrationType": "side_plank",
+    "defaultRepsOrTime": "3 × 45s march",
+    "category": "athletic"
+  },
+  "rear_delt_fly": {
+    "id": "rear_delt_fly",
+    "name": "Dumbbell Rear Delt Fly",
+    "targetMuscles": [
+      "Shoulders",
+      "Back"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Hinge deep, sweep dumbbells wide like wings, squeeze the back of your shoulders.",
+    "instructions": [
+      "Hinge at hips until torso is nearly parallel to floor, back flat and knees soft.",
+      "Hold light dumbbells hanging down with pinkies turned slightly outward.",
+      "With a slight bend in elbows, pull arms out and up in a wide arc until level with shoulders.",
+      "Squeeze the rear deltoids at peak for 1 second, then lower under slow control."
+    ],
+    "mistakes": [
+      "Using body bounce or momentum to swing weights.",
+      "Using too much weight and turning it into a row.",
+      "Lifting torso up during the rep."
+    ],
+    "illustrationType": "lateral_raise",
+    "defaultRepsOrTime": "3 × 15 reps",
+    "category": "strength"
+  },
+  "mike_tyson_pushups": {
+    "id": "mike_tyson_pushups",
+    "name": "Mike Tyson Push-Ups",
+    "targetMuscles": [
+      "Chest",
+      "Shoulders",
+      "Quads",
+      "Core"
+    ],
+    "equipment": "Mat / Floor",
+    "cue": "Push-up, then sit back into your heels like a loaded spring before launching forward.",
+    "instructions": [
+      "Start in a standard push-up position with feet pushed flat against a wall or firmly planted on floor.",
+      "Lower chest down into a strict, controlled push-up until hovering 1 inch off the ground.",
+      "As you press up, push backward, bending your knees to sit hips back toward your heels into a crouch.",
+      "Spring forward athletically back into the top push-up position and immediately drop into next rep."
+    ],
+    "mistakes": [
+      "Sagging the lower back during the push-up phase.",
+      "Shortchanging the deep knee bend and backward spring.",
+      "Moving in disconnected jerks instead of a fluid wave."
+    ],
+    "illustrationType": "mike_tyson_pushups",
+    "defaultRepsOrTime": "3 × 10 reps",
+    "category": "athletic"
+  },
+  "db_sumo_squat": {
+    "id": "db_sumo_squat",
+    "name": "Dumbbell Sumo Squat",
+    "targetMuscles": [
+      "Glutes",
+      "Quads",
+      "Hamstrings"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Wide stance, toes pointed 45 degrees out, drive knees out, crush adductors & glutes.",
+    "instructions": [
+      "Stand with feet wide (1.5x shoulder width) with toes angled outward at 45 degrees.",
+      "Hold a heavy dumbbell hanging vertically between legs with both hands.",
+      "Keep torso upright, sit hips back and down, forcing knees to track wide over your toes.",
+      "Drive through your heels to return to standing, locking glutes tightly at the top."
+    ],
+    "mistakes": [
+      "Letting knees cave inward instead of pushing out.",
+      "Leaning too far forward.",
+      "Not squatting deep enough."
+    ],
+    "illustrationType": "goblet_squat",
+    "defaultRepsOrTime": "3 × 10 reps",
+    "category": "strength"
+  },
+  "db_hang_snatch": {
+    "id": "db_hang_snatch",
+    "name": "Alternating Dumbbell Hang Snatch",
+    "targetMuscles": [
+      "Cardio / Full Body",
+      "Shoulders",
+      "Glutes",
+      "Back"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Hinge to knees, jump and pop hips, punch dumbbell straight to ceiling in one motion.",
+    "instructions": [
+      "Stand with feet hip-width apart, holding dumbbell between legs with an overhand grip.",
+      "Hinge hips slightly until dumbbell is at knee level.",
+      "Explode upward through hips and ankles, high-pulling dumbbell close to body and punching it straight overhead.",
+      "Catch with locked arm overhead, lower back to chest, and switch hands at bottom."
+    ],
+    "mistakes": [
+      "Swinging weight outward like a kettlebell instead of pulling close up the body.",
+      "Using arm strength instead of violent hip extension.",
+      "Arching lower back on overhead catch."
+    ],
+    "illustrationType": "arnold_press",
+    "defaultRepsOrTime": "3 × 6/side",
+    "category": "athletic"
+  },
+  "upright_row": {
+    "id": "upright_row",
+    "name": "Dumbbell Upright Row / High Pull",
+    "targetMuscles": [
+      "Shoulders",
+      "Back",
+      "Traps"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Lead with elbows high, pull dumbbells to upper chest, slow 2s descent.",
+    "instructions": [
+      "Stand tall holding dumbbells in front of thighs with palms facing you.",
+      "Pull dumbbells upward along the front of your torso, keeping elbows higher than wrists at all times.",
+      "Pause when dumbbells reach upper chest height, feeling side delts and upper traps contract.",
+      "Lower under strict control back to starting position."
+    ],
+    "mistakes": [
+      "Lifting wrists higher than elbows.",
+      "Using swinging momentum.",
+      "Pulling too high into neck, causing impingement."
+    ],
+    "illustrationType": "lateral_raise",
+    "defaultRepsOrTime": "3 × 12 reps",
+    "category": "strength"
+  },
+  "db_thrusters": {
+    "id": "db_thrusters",
+    "name": "Dumbbell Thrusters (Squat to Overhead Press)",
+    "targetMuscles": [
+      "Cardio / Full Body",
+      "Quads",
+      "Shoulders",
+      "Glutes"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Full deep squat, use upward leg explosion to launch dumbbells straight overhead.",
+    "instructions": [
+      "Hold dumbbells racked at shoulder height, standing shoulder-width apart.",
+      "Descend into a full deep squat, hips below knees, chest upright.",
+      "Explosively stand up out of the squat, using that momentum to press dumbbells overhead in one fluid arc.",
+      "Lower weights back to shoulders smoothly as you descend into the next squat repetition."
+    ],
+    "mistakes": [
+      "Pausing at the top of the squat before pressing (must be one continuous explosive movement).",
+      "Caving knees inward.",
+      "Shortchanging squat depth."
+    ],
+    "illustrationType": "goblet_squat",
+    "defaultRepsOrTime": "4 × 8 reps",
+    "category": "athletic"
+  },
+  "reverse_lunges": {
+    "id": "reverse_lunges",
+    "name": "Alternating Dumbbell Reverse Lunges",
+    "targetMuscles": [
+      "Quads",
+      "Glutes",
+      "Hamstrings"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Step back with control, kiss back knee to floor, drive up through front heel.",
+    "instructions": [
+      "Stand tall holding dumbbells at your sides.",
+      "Take a large, controlled step backward with your right leg.",
+      "Lower hips until front thigh is parallel to floor and rear knee gently kisses the mat.",
+      "Drive powerfully through your front heel to step back forward, then switch legs."
+    ],
+    "mistakes": [
+      "Slamming back knee hard into the ground.",
+      "Front knee caving inward or tracking way past toes.",
+      "Leaning torso excessively forward."
+    ],
+    "illustrationType": "bulgarian_split_squat",
+    "defaultRepsOrTime": "3 × 10/side",
+    "category": "strength"
+  },
+  "man_makers": {
+    "id": "man_makers",
+    "name": "Dumbbell Man-Makers",
+    "targetMuscles": [
+      "Cardio / Full Body",
+      "Chest",
+      "Back",
+      "Shoulders",
+      "Quads"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Push-up, Row L, Row R, Jump in, Clean to squat, and Thruster overhead.",
+    "instructions": [
+      "Drop to plank holding dumbbells. Do a strict push-up.",
+      "At top of push-up, perform a right-arm row, then a left-arm row.",
+      "Jump feet forward outside dumbbells into a squat.",
+      "Clean dumbbells to shoulders, squat deep, and explode into an overhead thruster. That is 1 rep."
+    ],
+    "mistakes": [
+      "Allowing hips to rotate during the rows.",
+      "Rushing through individual movements with sloppy form.",
+      "Using weights that are too heavy to complete fluidly."
+    ],
+    "illustrationType": "arnold_press",
+    "defaultRepsOrTime": "3 × 6 reps",
+    "category": "athletic"
+  },
+  "glute_bridge": {
+    "id": "glute_bridge",
+    "name": "Weighted Dumbbell Glute Bridge",
+    "targetMuscles": [
+      "Glutes",
+      "Hamstrings",
+      "Core"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Rest dumbbell across hips, drive heels into floor, lock glutes for 2 seconds at top.",
+    "instructions": [
+      "Lie on floor with knees bent and feet flat on the ground hip-width apart.",
+      "Place a heavy dumbbell horizontally across your hips, holding it securely with hands.",
+      "Drive heels through the floor and extend hips toward the ceiling until thighs and torso align.",
+      "Squeeze glutes with maximum force for 2 seconds at the peak before lowering under control."
+    ],
+    "mistakes": [
+      "Hyperextending the lumbar spine instead of using glute extension.",
+      "Letting knees cave inward.",
+      "Pushing through toes instead of heels."
+    ],
+    "illustrationType": "glute_bridge",
+    "defaultRepsOrTime": "3 × 15 reps",
+    "category": "strength"
+  }
 };
 
 export const WEEKLY_SCHEDULE: Record<string, DayPlan> = {
-  Mon: {
-    dayKey: 'Mon',
-    fullName: 'Monday',
-    morning: {
-      skipping: {
-        title: 'Skipping — Hard intervals',
-        duration: '10 × (45s fast / 30s easy)',
-        cue: 'High cadence, light on balls of feet',
+  "Mon": {
+    "dayKey": "Mon",
+    "fullName": "Monday",
+    "morning": {
+      "skipping": {
+        "title": "Skipping — HIIT Sprint Intervals",
+        "duration": "10 × (45s fast / 30s easy bounce)",
+        "cue": "High cadence, turn rope from wrists, light on feet."
       },
-      abs: [
-        { exerciseId: 'dead_bugs', prescription: '3 × 10/side' },
-        { exerciseId: 'reverse_crunches', prescription: '3 × 12' },
+      "abs": [
+        {
+          "exerciseId": "hollow_body_hold",
+          "prescription": "3 × 35s"
+        },
+        {
+          "exerciseId": "rkc_plank",
+          "prescription": "3 × 30s"
+        }
       ],
-      pelvic: [
-        { exerciseId: 'diaphragmatic_breathing', prescription: '1 min' },
-        { exerciseId: 'slow_kegels', prescription: '10 reps (5s hold)' },
-        { exerciseId: 'quick_flicks', prescription: '10 reps' },
-        { exerciseId: 'deep_squat_breathing', prescription: '1 min' },
+      "pelvic": [
+        {
+          "exerciseId": "diaphragmatic_breathing",
+          "prescription": "1 min",
+          "cue": "Exhale fully, vacuum navel to spine, hold 10s."
+        },
+        {
+          "exerciseId": "slow_kegels",
+          "prescription": "10 reps (5s hold / 5s rest)",
+          "cue": "Elevator lift, hold 5s with maximum force, full 5s release."
+        },
+        {
+          "exerciseId": "quick_flicks",
+          "prescription": "15 quick snaps",
+          "cue": "Fast 1s snap squeeze, immediate release, build fast-twitch control."
+        },
+        {
+          "exerciseId": "deep_squat_breathing",
+          "prescription": "1 min deep reset",
+          "cue": "Deep ATG squat, breathe air into pelvic bowl, expand & decompress."
+        }
       ],
-      mobility: [
-        { exerciseId: 'hip_switches_9090', prescription: '8/side' },
-        { exerciseId: 'worlds_greatest_stretch', prescription: '5/side' },
-        { exerciseId: 'leg_swings', prescription: '10 each way' },
-        { exerciseId: 'deep_squat_hold', prescription: '30s × 2' },
-      ],
+      "mobility": [
+        {
+          "exerciseId": "hip_switches_9090",
+          "prescription": "8/side",
+          "cue": "Sit tall, rotate hip capsules smoothly without hands."
+        },
+        {
+          "exerciseId": "worlds_greatest_stretch",
+          "prescription": "5/side",
+          "cue": "Lunge deep, drop elbow to instep, open wide to sky."
+        },
+        {
+          "exerciseId": "cossack_squat",
+          "prescription": "6/side",
+          "cue": "Sit deep into one hip, trailing heel down with toes up."
+        },
+        {
+          "exerciseId": "deep_squat_hold",
+          "prescription": "45s × 2",
+          "cue": "Pry knees open with elbows, shift weight ankle to ankle."
+        }
+      ]
     },
-    evening: {
-      label: 'Day A — Squat & Push',
-      subtitle: 'Lower body push + Upper body push & pull balance',
-      groups: [
+    "evening": {
+      "label": "Full-Body Day 1 — Power & Density (Quad & Chest Focus)",
+      "subtitle": "Full-body dumbbell supersets and athletic power conditioning",
+      "finisher": "Finisher: 3 rounds — 15 Lateral Raises + 12 Hammer Curls (No rest between exercises)",
+      "groups": [
         {
-          name: 'Superset A',
-          restNote: 'Do in pairs, 60–75s rest after each pair',
-          exercises: [
-            { exerciseId: 'goblet_squat', prescription: '4 × 8' },
-            { exerciseId: 'floor_press', prescription: '4 × 8' },
-          ],
+          "name": "Superset A (Quad & Chest)",
+          "restNote": "Do in pairs, 60–75s rest after each pair (4 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "goblet_squat",
+              "prescription": "4 × 10"
+            },
+            {
+              "exerciseId": "floor_press",
+              "prescription": "4 × 10"
+            }
+          ]
         },
         {
-          name: 'Superset B',
-          restNote: 'Do in pairs, 60–75s rest after each pair',
-          exercises: [
-            { exerciseId: 'bent_over_row', prescription: '3 × 10' },
-            { exerciseId: 'lateral_raise', prescription: '3 × 12' },
-          ],
+          "name": "Superset B (Hinge & Lats)",
+          "restNote": "Do in pairs, 60–75s rest after each pair (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "romanian_deadlift",
+              "prescription": "3 × 10"
+            },
+            {
+              "exerciseId": "gorilla_rows",
+              "prescription": "3 × 10"
+            }
+          ]
         },
         {
-          name: 'Straight sets',
-          restNote: '60s rest between sets',
-          exercises: [
-            { exerciseId: 'romanian_deadlift', prescription: '2 × 12' },
-            { exerciseId: 'hammer_curls', prescription: '3 × 10' },
-          ],
-        },
-      ],
-    },
+          "name": "Athletic Conditioning Complex",
+          "restNote": "60s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "devil_press",
+              "prescription": "3 × 8"
+            }
+          ]
+        }
+      ]
+    }
   },
-  Tue: {
-    dayKey: 'Tue',
-    fullName: 'Tuesday',
-    morning: {
-      skipping: {
-        title: 'Skipping — Steady pace',
-        duration: '15 min, conversational speed',
-        cue: 'Aerobic base building, smooth rhythm',
+  "Tue": {
+    "dayKey": "Tue",
+    "fullName": "Tuesday",
+    "morning": {
+      "skipping": {
+        "title": "Skipping — Boxer Shuffle & Rhythm",
+        "duration": "15 min continuous aerobic flow",
+        "cue": "High cadence, turn rope from wrists, light on feet."
       },
-      abs: [
-        { exerciseId: 'side_plank', prescription: '3 × 30s/side' },
-        { exerciseId: 'pallof_press', prescription: '3 × 10' },
+      "abs": [
+        {
+          "exerciseId": "side_plank",
+          "prescription": "3 × 35s/side"
+        },
+        {
+          "exerciseId": "copenhagen_plank",
+          "prescription": "3 × 20s/side"
+        }
       ],
-      pelvic: [
-        { exerciseId: 'diaphragmatic_breathing', prescription: '1 min' },
-        { exerciseId: 'slow_kegels', prescription: '10 reps (5s hold)' },
-        { exerciseId: 'quick_flicks', prescription: '10 reps' },
-        { exerciseId: 'deep_squat_breathing', prescription: '1 min' },
+      "pelvic": [
+        {
+          "exerciseId": "diaphragmatic_breathing",
+          "prescription": "1 min",
+          "cue": "Exhale fully, vacuum navel to spine, hold 10s."
+        },
+        {
+          "exerciseId": "slow_kegels",
+          "prescription": "10 reps (5s hold / 5s rest)",
+          "cue": "Elevator lift, hold 5s with maximum force, full 5s release."
+        },
+        {
+          "exerciseId": "quick_flicks",
+          "prescription": "15 quick snaps",
+          "cue": "Fast 1s snap squeeze, immediate release, build fast-twitch control."
+        },
+        {
+          "exerciseId": "deep_squat_breathing",
+          "prescription": "1 min deep reset",
+          "cue": "Deep ATG squat, breathe air into pelvic bowl, expand & decompress."
+        }
       ],
-      mobility: [
-        { exerciseId: 'hip_switches_9090', prescription: '8/side' },
-        { exerciseId: 'worlds_greatest_stretch', prescription: '5/side' },
-        { exerciseId: 'leg_swings', prescription: '10 each way' },
-        { exerciseId: 'deep_squat_hold', prescription: '30s × 2' },
-      ],
+      "mobility": [
+        {
+          "exerciseId": "hip_switches_9090",
+          "prescription": "8/side",
+          "cue": "Sit tall, rotate hip capsules smoothly without hands."
+        },
+        {
+          "exerciseId": "worlds_greatest_stretch",
+          "prescription": "5/side",
+          "cue": "Lunge deep, drop elbow to instep, open wide to sky."
+        },
+        {
+          "exerciseId": "cossack_squat",
+          "prescription": "6/side",
+          "cue": "Sit deep into one hip, trailing heel down with toes up."
+        },
+        {
+          "exerciseId": "deep_squat_hold",
+          "prescription": "45s × 2",
+          "cue": "Pry knees open with elbows, shift weight ankle to ankle."
+        }
+      ]
     },
-    evening: {
-      label: 'Day B — Hinge & Pull',
-      subtitle: 'Posterior chain hinge + Heavy rows & shoulder stability',
-      groups: [
+    "evening": {
+      "label": "Full-Body Day 2 — Posterior Chain & Overhead Power (Hinge & Shoulders Focus)",
+      "subtitle": "Full-body dumbbell supersets and athletic power conditioning",
+      "finisher": "Finisher: 3 rounds — 12 Overhead Dumbbell Tricep Extensions + 12 Supinating Bicep Curls",
+      "groups": [
         {
-          name: 'Superset A',
-          restNote: 'Do in pairs, 60–75s rest after each pair',
-          exercises: [
-            { exerciseId: 'romanian_deadlift', prescription: '4 × 8' },
-            { exerciseId: 'close_grip_press', prescription: '4 × 8' },
-          ],
+          "name": "Superset A (Clean, Press & Single Leg)",
+          "restNote": "Do in pairs, 60–75s rest after each pair (4 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "db_clean_push_press",
+              "prescription": "4 × 8"
+            },
+            {
+              "exerciseId": "single_leg_rdl",
+              "prescription": "3 × 8/side"
+            }
+          ]
         },
         {
-          name: 'Superset B',
-          restNote: 'Do in pairs, 60–75s rest after each pair',
-          exercises: [
-            { exerciseId: 'gorilla_rows', prescription: '3 × 10' },
-            { exerciseId: 'arnold_press', prescription: '3 × 10' },
-          ],
+          "name": "Superset B (Front Squat & Rows)",
+          "restNote": "Do in pairs, 60–75s rest after each pair (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "db_front_squat",
+              "prescription": "3 × 10"
+            },
+            {
+              "exerciseId": "bent_over_row",
+              "prescription": "3 × 10"
+            }
+          ]
         },
         {
-          name: 'Straight sets',
-          restNote: '60s rest between sets',
-          exercises: [
-            { exerciseId: 'bulgarian_split_squat', prescription: '3 × 8/side' },
-            { exerciseId: 'upright_row', prescription: '3 × 12' },
-          ],
-        },
-      ],
-    },
+          "name": "Athletic Core & Chest Complex",
+          "restNote": "60s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "renegade_rows",
+              "prescription": "3 × 8/side"
+            }
+          ]
+        }
+      ]
+    }
   },
-  Wed: {
-    dayKey: 'Wed',
-    fullName: 'Wednesday',
-    morning: {
-      skipping: {
-        title: 'Skipping — Sprint intervals',
-        duration: '8 × (30s sprint / 45s rest)',
-        cue: 'Max speed rope turns, rapid feet',
+  "Wed": {
+    "dayKey": "Wed",
+    "fullName": "Wednesday",
+    "morning": {
+      "skipping": {
+        "title": "Skipping — Tabata Sprint Pyramids",
+        "duration": "8 rounds (20s all-out sprint / 10s rest)",
+        "cue": "High cadence, turn rope from wrists, light on feet."
       },
-      abs: [
-        { exerciseId: 'plank_to_pushup', prescription: '3 × 10' },
-        { exerciseId: 'lying_leg_raises', prescription: '3 × 12' },
-      ],
-      pelvic: [
-        { exerciseId: 'diaphragmatic_breathing', prescription: '1 min' },
-        { exerciseId: 'slow_kegels', prescription: '10 reps (5s hold)' },
-        { exerciseId: 'quick_flicks', prescription: '10 reps' },
-        { exerciseId: 'deep_squat_breathing', prescription: '1 min' },
-      ],
-      mobility: [
-        { exerciseId: 'hip_switches_9090', prescription: '8/side' },
-        { exerciseId: 'worlds_greatest_stretch', prescription: '5/side' },
-        { exerciseId: 'leg_swings', prescription: '10 each way' },
-        { exerciseId: 'deep_squat_hold', prescription: '30s × 2' },
-      ],
-    },
-    evening: {
-      label: 'Day C — Unilateral & Athletic',
-      subtitle: 'Single-leg balance, explosive pushups, core rotational power',
-      finisher: 'Finisher: 5 min EMOM — 10 jump squats or 20 fast skips.',
-      groups: [
+      "abs": [
         {
-          name: 'Athletic Circuit',
-          restNote:
-            'Perform as a circuit with 45-60s rest between rounds, 3 rounds total',
-          exercises: [
-            { exerciseId: 'renegade_rows', prescription: '3 × 8/side' },
-            { exerciseId: 'mike_tyson_pushups', prescription: '3 × 8' },
-            { exerciseId: 'single_leg_rdl', prescription: '3 × 8/side' },
-            { exerciseId: 'glute_bridge', prescription: '3 × 12' },
-            { exerciseId: 'rear_delt_fly', prescription: '3 × 12' },
-          ],
+          "exerciseId": "suitcase_hold",
+          "prescription": "3 × 35s/side"
         },
+        {
+          "exerciseId": "wall_sit_hold",
+          "prescription": "3 × 45s"
+        }
       ],
+      "pelvic": [
+        {
+          "exerciseId": "diaphragmatic_breathing",
+          "prescription": "1 min",
+          "cue": "Exhale fully, vacuum navel to spine, hold 10s."
+        },
+        {
+          "exerciseId": "slow_kegels",
+          "prescription": "10 reps (5s hold / 5s rest)",
+          "cue": "Elevator lift, hold 5s with maximum force, full 5s release."
+        },
+        {
+          "exerciseId": "quick_flicks",
+          "prescription": "15 quick snaps",
+          "cue": "Fast 1s snap squeeze, immediate release, build fast-twitch control."
+        },
+        {
+          "exerciseId": "deep_squat_breathing",
+          "prescription": "1 min deep reset",
+          "cue": "Deep ATG squat, breathe air into pelvic bowl, expand & decompress."
+        }
+      ],
+      "mobility": [
+        {
+          "exerciseId": "hip_switches_9090",
+          "prescription": "8/side",
+          "cue": "Sit tall, rotate hip capsules smoothly without hands."
+        },
+        {
+          "exerciseId": "worlds_greatest_stretch",
+          "prescription": "5/side",
+          "cue": "Lunge deep, drop elbow to instep, open wide to sky."
+        },
+        {
+          "exerciseId": "cossack_squat",
+          "prescription": "6/side",
+          "cue": "Sit deep into one hip, trailing heel down with toes up."
+        },
+        {
+          "exerciseId": "deep_squat_hold",
+          "prescription": "45s × 2",
+          "cue": "Pry knees open with elbows, shift weight ankle to ankle."
+        }
+      ]
     },
+    "evening": {
+      "label": "Full-Body Day 3 — Unilateral & Rotational Athleticism (Split Stance & Obliques)",
+      "subtitle": "Full-body dumbbell supersets and athletic power conditioning",
+      "finisher": "Finisher: 3 rounds — 15 Rear Delt Flyes + 45s Farmers March",
+      "groups": [
+        {
+          "name": "Superset A (Unilateral Legs & Triceps)",
+          "restNote": "Do in pairs, 60–75s rest after each pair (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "bulgarian_split_squat",
+              "prescription": "3 × 8/side"
+            },
+            {
+              "exerciseId": "close_grip_press",
+              "prescription": "3 × 10"
+            }
+          ]
+        },
+        {
+          "name": "Superset B (Posterior & 3D Delts)",
+          "restNote": "Do in pairs, 60–75s rest after each pair (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "romanian_deadlift",
+              "prescription": "3 × 10"
+            },
+            {
+              "exerciseId": "arnold_press",
+              "prescription": "3 × 10"
+            }
+          ]
+        },
+        {
+          "name": "Athletic Rotational Core",
+          "restNote": "45s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "woodchoppers",
+              "prescription": "3 × 10/side"
+            }
+          ]
+        }
+      ]
+    }
   },
-  Thu: {
-    dayKey: 'Thu',
-    fullName: 'Thursday',
-    morning: {
-      skipping: {
-        title: 'Skipping — Hard intervals',
-        duration: '10 × (45s fast / 30s easy)',
-        cue: 'High cadence, light on balls of feet',
+  "Thu": {
+    "dayKey": "Thu",
+    "fullName": "Thursday",
+    "morning": {
+      "skipping": {
+        "title": "Skipping — High-Knee & Double-Under Prep",
+        "duration": "10 × (40s power jumps / 30s rest)",
+        "cue": "High cadence, turn rope from wrists, light on feet."
       },
-      abs: [
-        { exerciseId: 'dead_bugs', prescription: '3 × 10/side' },
-        { exerciseId: 'reverse_crunches', prescription: '3 × 12' },
+      "abs": [
+        {
+          "exerciseId": "dead_bugs",
+          "prescription": "3 × 10/side (3s pause)"
+        },
+        {
+          "exerciseId": "bear_crawl_hold",
+          "prescription": "3 × 40s"
+        }
       ],
-      pelvic: [
-        { exerciseId: 'diaphragmatic_breathing', prescription: '1 min' },
-        { exerciseId: 'slow_kegels', prescription: '10 reps (5s hold)' },
-        { exerciseId: 'quick_flicks', prescription: '10 reps' },
-        { exerciseId: 'deep_squat_breathing', prescription: '1 min' },
+      "pelvic": [
+        {
+          "exerciseId": "diaphragmatic_breathing",
+          "prescription": "1 min",
+          "cue": "Exhale fully, vacuum navel to spine, hold 10s."
+        },
+        {
+          "exerciseId": "slow_kegels",
+          "prescription": "10 reps (5s hold / 5s rest)",
+          "cue": "Elevator lift, hold 5s with maximum force, full 5s release."
+        },
+        {
+          "exerciseId": "quick_flicks",
+          "prescription": "15 quick snaps",
+          "cue": "Fast 1s snap squeeze, immediate release, build fast-twitch control."
+        },
+        {
+          "exerciseId": "deep_squat_breathing",
+          "prescription": "1 min deep reset",
+          "cue": "Deep ATG squat, breathe air into pelvic bowl, expand & decompress."
+        }
       ],
-      mobility: [
-        { exerciseId: 'hip_switches_9090', prescription: '8/side' },
-        { exerciseId: 'worlds_greatest_stretch', prescription: '5/side' },
-        { exerciseId: 'leg_swings', prescription: '10 each way' },
-        { exerciseId: 'deep_squat_hold', prescription: '30s × 2' },
-      ],
+      "mobility": [
+        {
+          "exerciseId": "hip_switches_9090",
+          "prescription": "8/side",
+          "cue": "Sit tall, rotate hip capsules smoothly without hands."
+        },
+        {
+          "exerciseId": "worlds_greatest_stretch",
+          "prescription": "5/side",
+          "cue": "Lunge deep, drop elbow to instep, open wide to sky."
+        },
+        {
+          "exerciseId": "cossack_squat",
+          "prescription": "6/side",
+          "cue": "Sit deep into one hip, trailing heel down with toes up."
+        },
+        {
+          "exerciseId": "deep_squat_hold",
+          "prescription": "45s × 2",
+          "cue": "Pry knees open with elbows, shift weight ankle to ankle."
+        }
+      ]
     },
-    evening: {
-      label: 'Day A — Squat & Push',
-      subtitle: 'Lower body push + Upper body push & pull balance',
-      groups: [
+    "evening": {
+      "label": "Full-Body Day 4 — Hypertrophy & Time Under Tension (Slow Eccentrics)",
+      "subtitle": "Full-body dumbbell supersets and athletic power conditioning",
+      "finisher": "Finisher: 3 rounds — 12 Upright Rows + 12 Hammer Curls (2s negative on every rep)",
+      "groups": [
         {
-          name: 'Superset A',
-          restNote: 'Do in pairs, 60–75s rest after each pair',
-          exercises: [
-            { exerciseId: 'goblet_squat', prescription: '4 × 8' },
-            { exerciseId: 'floor_press', prescription: '4 × 8' },
-          ],
+          "name": "Superset A (Adductors, Chest & Back Push)",
+          "restNote": "Do in pairs, 60–75s rest after each pair (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "db_sumo_squat",
+              "prescription": "3 × 10"
+            },
+            {
+              "exerciseId": "mike_tyson_pushups",
+              "prescription": "3 × 10"
+            }
+          ]
         },
         {
-          name: 'Superset B',
-          restNote: 'Do in pairs, 60–75s rest after each pair',
-          exercises: [
-            { exerciseId: 'bent_over_row', prescription: '3 × 10' },
-            { exerciseId: 'lateral_raise', prescription: '3 × 12' },
-          ],
+          "name": "Superset B (Heavy Hinges & Lats)",
+          "restNote": "Do in pairs, 60–75s rest after each pair (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "romanian_deadlift",
+              "prescription": "3 × 10 (3s lower)"
+            },
+            {
+              "exerciseId": "bent_over_row",
+              "prescription": "3 × 10"
+            }
+          ]
         },
         {
-          name: 'Straight sets',
-          restNote: '60s rest between sets',
-          exercises: [
-            { exerciseId: 'romanian_deadlift', prescription: '2 × 12' },
-            { exerciseId: 'hammer_curls', prescription: '3 × 10' },
-          ],
-        },
-      ],
-    },
+          "name": "Explosive Athletic Snatch Complex",
+          "restNote": "60s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "db_hang_snatch",
+              "prescription": "3 × 6/side"
+            }
+          ]
+        }
+      ]
+    }
   },
-  Fri: {
-    dayKey: 'Fri',
-    fullName: 'Friday',
-    morning: {
-      skipping: {
-        title: 'Skipping — Steady pace',
-        duration: '15 min, conversational speed',
-        cue: 'Aerobic base building, smooth rhythm',
+  "Fri": {
+    "dayKey": "Fri",
+    "fullName": "Friday",
+    "morning": {
+      "skipping": {
+        "title": "Skipping — Fat-Oxidation Aerobic Flow",
+        "duration": "15 min steady conversational pace",
+        "cue": "High cadence, turn rope from wrists, light on feet."
       },
-      abs: [
-        { exerciseId: 'side_plank', prescription: '3 × 30s/side' },
-        { exerciseId: 'pallof_press', prescription: '3 × 10' },
+      "abs": [
+        {
+          "exerciseId": "bird_dogs",
+          "prescription": "3 × 10/side (3s pause)"
+        },
+        {
+          "exerciseId": "l_sit_tuck",
+          "prescription": "3 × 20s"
+        }
       ],
-      pelvic: [
-        { exerciseId: 'diaphragmatic_breathing', prescription: '1 min' },
-        { exerciseId: 'slow_kegels', prescription: '10 reps (5s hold)' },
-        { exerciseId: 'quick_flicks', prescription: '10 reps' },
-        { exerciseId: 'deep_squat_breathing', prescription: '1 min' },
+      "pelvic": [
+        {
+          "exerciseId": "diaphragmatic_breathing",
+          "prescription": "1 min",
+          "cue": "Exhale fully, vacuum navel to spine, hold 10s."
+        },
+        {
+          "exerciseId": "slow_kegels",
+          "prescription": "10 reps (5s hold / 5s rest)",
+          "cue": "Elevator lift, hold 5s with maximum force, full 5s release."
+        },
+        {
+          "exerciseId": "quick_flicks",
+          "prescription": "15 quick snaps",
+          "cue": "Fast 1s snap squeeze, immediate release, build fast-twitch control."
+        },
+        {
+          "exerciseId": "deep_squat_breathing",
+          "prescription": "1 min deep reset",
+          "cue": "Deep ATG squat, breathe air into pelvic bowl, expand & decompress."
+        }
       ],
-      mobility: [
-        { exerciseId: 'hip_switches_9090', prescription: '8/side' },
-        { exerciseId: 'worlds_greatest_stretch', prescription: '5/side' },
-        { exerciseId: 'leg_swings', prescription: '10 each way' },
-        { exerciseId: 'deep_squat_hold', prescription: '30s × 2' },
-      ],
+      "mobility": [
+        {
+          "exerciseId": "hip_switches_9090",
+          "prescription": "8/side",
+          "cue": "Sit tall, rotate hip capsules smoothly without hands."
+        },
+        {
+          "exerciseId": "worlds_greatest_stretch",
+          "prescription": "5/side",
+          "cue": "Lunge deep, drop elbow to instep, open wide to sky."
+        },
+        {
+          "exerciseId": "cossack_squat",
+          "prescription": "6/side",
+          "cue": "Sit deep into one hip, trailing heel down with toes up."
+        },
+        {
+          "exerciseId": "deep_squat_hold",
+          "prescription": "45s × 2",
+          "cue": "Pry knees open with elbows, shift weight ankle to ankle."
+        }
+      ]
     },
-    evening: {
-      label: 'Day B — Hinge & Pull',
-      subtitle: 'Posterior chain hinge + Heavy rows & shoulder stability',
-      groups: [
+    "evening": {
+      "label": "Full-Body Day 5 — Functional Explosiveness & Metabolic Shred",
+      "subtitle": "Full-body dumbbell supersets and athletic power conditioning",
+      "finisher": "Finisher: 3 rounds — 15 Lateral Raises + 15 Weighted Glute Bridges",
+      "groups": [
         {
-          name: 'Superset A',
-          restNote: 'Do in pairs, 60–75s rest after each pair',
-          exercises: [
-            { exerciseId: 'romanian_deadlift', prescription: '4 × 8' },
-            { exerciseId: 'close_grip_press', prescription: '4 × 8' },
-          ],
+          "name": "Superset A (Full-Body Power)",
+          "restNote": "Do in pairs, 60–75s rest after each pair (4 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "db_thrusters",
+              "prescription": "4 × 8"
+            },
+            {
+              "exerciseId": "gorilla_rows",
+              "prescription": "4 × 10"
+            }
+          ]
         },
         {
-          name: 'Superset B',
-          restNote: 'Do in pairs, 60–75s rest after each pair',
-          exercises: [
-            { exerciseId: 'gorilla_rows', prescription: '3 × 10' },
-            { exerciseId: 'arnold_press', prescription: '3 × 10' },
-          ],
+          "name": "Superset B (Chest & Lunges)",
+          "restNote": "Do in pairs, 60–75s rest after each pair (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "floor_press",
+              "prescription": "3 × 10"
+            },
+            {
+              "exerciseId": "reverse_lunges",
+              "prescription": "3 × 10/side"
+            }
+          ]
         },
         {
-          name: 'Straight sets',
-          restNote: '60s rest between sets',
-          exercises: [
-            { exerciseId: 'bulgarian_split_squat', prescription: '3 × 8/side' },
-            { exerciseId: 'upright_row', prescription: '3 × 12' },
-          ],
-        },
-      ],
-    },
+          "name": "Athletic Iron Complex",
+          "restNote": "60s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "man_makers",
+              "prescription": "3 × 6"
+            }
+          ]
+        }
+      ]
+    }
   },
-  Sat: {
-    dayKey: 'Sat',
-    fullName: 'Saturday',
-    morning: {
-      skipping: {
-        title: 'Skipping — Sprint intervals',
-        duration: '8 × (30s sprint / 45s rest)',
-        cue: 'Max speed rope turns, rapid feet',
+  "Sat": {
+    "dayKey": "Sat",
+    "fullName": "Saturday",
+    "morning": {
+      "skipping": {
+        "title": "Skipping — Speed & Agility Complex",
+        "duration": "8 × (30s crossover sprint / 30s rest)",
+        "cue": "High cadence, turn rope from wrists, light on feet."
       },
-      abs: [
-        { exerciseId: 'plank_to_pushup', prescription: '3 × 10' },
-        { exerciseId: 'lying_leg_raises', prescription: '3 × 12' },
-      ],
-      pelvic: [
-        { exerciseId: 'diaphragmatic_breathing', prescription: '1 min' },
-        { exerciseId: 'slow_kegels', prescription: '10 reps (5s hold)' },
-        { exerciseId: 'quick_flicks', prescription: '10 reps' },
-        { exerciseId: 'deep_squat_breathing', prescription: '1 min' },
-      ],
-      mobility: [
-        { exerciseId: 'hip_switches_9090', prescription: '8/side' },
-        { exerciseId: 'worlds_greatest_stretch', prescription: '5/side' },
-        { exerciseId: 'leg_swings', prescription: '10 each way' },
-        { exerciseId: 'deep_squat_hold', prescription: '30s × 2' },
-      ],
-    },
-    evening: {
-      label: 'Day C — Unilateral & Athletic',
-      subtitle: 'Single-leg balance, explosive pushups, core rotational power',
-      finisher: 'Finisher: 5 min EMOM — 10 jump squats or 20 fast skips.',
-      groups: [
+      "abs": [
         {
-          name: 'Athletic Circuit',
-          restNote:
-            'Perform as a circuit with 45-60s rest between rounds, 3 rounds total',
-          exercises: [
-            { exerciseId: 'renegade_rows', prescription: '3 × 8/side' },
-            { exerciseId: 'mike_tyson_pushups', prescription: '3 × 8' },
-            { exerciseId: 'single_leg_rdl', prescription: '3 × 8/side' },
-            { exerciseId: 'glute_bridge', prescription: '3 × 12' },
-            { exerciseId: 'rear_delt_fly', prescription: '3 × 12' },
-          ],
+          "exerciseId": "hollow_body_hold",
+          "prescription": "3 × 35s"
         },
+        {
+          "exerciseId": "glute_bridge_hold",
+          "prescription": "3 × 45s"
+        }
       ],
+      "pelvic": [
+        {
+          "exerciseId": "diaphragmatic_breathing",
+          "prescription": "1 min",
+          "cue": "Exhale fully, vacuum navel to spine, hold 10s."
+        },
+        {
+          "exerciseId": "slow_kegels",
+          "prescription": "10 reps (5s hold / 5s rest)",
+          "cue": "Elevator lift, hold 5s with maximum force, full 5s release."
+        },
+        {
+          "exerciseId": "quick_flicks",
+          "prescription": "15 quick snaps",
+          "cue": "Fast 1s snap squeeze, immediate release, build fast-twitch control."
+        },
+        {
+          "exerciseId": "deep_squat_breathing",
+          "prescription": "1 min deep reset",
+          "cue": "Deep ATG squat, breathe air into pelvic bowl, expand & decompress."
+        }
+      ],
+      "mobility": [
+        {
+          "exerciseId": "hip_switches_9090",
+          "prescription": "8/side",
+          "cue": "Sit tall, rotate hip capsules smoothly without hands."
+        },
+        {
+          "exerciseId": "worlds_greatest_stretch",
+          "prescription": "5/side",
+          "cue": "Lunge deep, drop elbow to instep, open wide to sky."
+        },
+        {
+          "exerciseId": "cossack_squat",
+          "prescription": "6/side",
+          "cue": "Sit deep into one hip, trailing heel down with toes up."
+        },
+        {
+          "exerciseId": "deep_squat_hold",
+          "prescription": "45s × 2",
+          "cue": "Pry knees open with elbows, shift weight ankle to ankle."
+        }
+      ]
     },
+    "evening": {
+      "label": "Full-Body Day 6 — The Warrior Circuit (High-Output Full-Body Conditioning)",
+      "subtitle": "Full-body dumbbell supersets and athletic power conditioning",
+      "finisher": "Finisher: 5 min AMRAP — 10 Devil Presses or 50 Fast Skips",
+      "groups": [
+        {
+          "name": "Warrior Circuit (Perform in sequence with 45–60s rest between rounds, 3–4 rounds total)",
+          "restNote": "45–60s rest after complete round",
+          "exercises": [
+            {
+              "exerciseId": "goblet_squat",
+              "prescription": "10 reps"
+            },
+            {
+              "exerciseId": "renegade_rows",
+              "prescription": "6 reps/side"
+            },
+            {
+              "exerciseId": "single_leg_rdl",
+              "prescription": "8 reps/side"
+            },
+            {
+              "exerciseId": "arnold_press",
+              "prescription": "10 reps"
+            },
+            {
+              "exerciseId": "farmers_carry",
+              "prescription": "45s march"
+            }
+          ]
+        }
+      ]
+    }
   },
-  Sun: {
-    dayKey: 'Sun',
-    fullName: 'Sunday',
-    morning: {
-      skipping: {
-        title: 'Skipping — Light recovery',
-        duration: '10 min easy + extra mobility',
-        cue: 'Relaxed recovery pace, shake out tension',
+  "Sun": {
+    "dayKey": "Sun",
+    "fullName": "Sunday",
+    "morning": {
+      "skipping": {
+        "title": "Skipping — Restorative Boxer Skip",
+        "duration": "12 min easy rhythm recovery",
+        "cue": "High cadence, turn rope from wrists, light on feet."
       },
-      abs: [
-        { exerciseId: 'suitcase_hold', prescription: '3 × 30s/side' },
-        { exerciseId: 'bird_dogs', prescription: '3 × 10/side' },
+      "abs": [
+        {
+          "exerciseId": "prone_cobra_hold",
+          "prescription": "3 × 35s"
+        },
+        {
+          "exerciseId": "bird_dogs",
+          "prescription": "3 × 10/side"
+        }
       ],
-      pelvic: [
-        { exerciseId: 'diaphragmatic_breathing', prescription: '1 min' },
-        { exerciseId: 'slow_kegels', prescription: '10 reps (5s hold)' },
-        { exerciseId: 'quick_flicks', prescription: '10 reps' },
-        { exerciseId: 'deep_squat_breathing', prescription: '1 min' },
+      "pelvic": [
+        {
+          "exerciseId": "diaphragmatic_breathing",
+          "prescription": "1 min",
+          "cue": "Exhale fully, vacuum navel to spine, hold 10s."
+        },
+        {
+          "exerciseId": "slow_kegels",
+          "prescription": "10 reps (5s hold / 5s rest)",
+          "cue": "Elevator lift, hold 5s with maximum force, full 5s release."
+        },
+        {
+          "exerciseId": "quick_flicks",
+          "prescription": "15 quick snaps",
+          "cue": "Fast 1s snap squeeze, immediate release, build fast-twitch control."
+        },
+        {
+          "exerciseId": "deep_squat_breathing",
+          "prescription": "1 min deep reset",
+          "cue": "Deep ATG squat, breathe air into pelvic bowl, expand & decompress."
+        }
       ],
-      mobility: [
-        { exerciseId: 'hip_switches_9090', prescription: '8/side' },
-        { exerciseId: 'worlds_greatest_stretch', prescription: '5/side' },
-        { exerciseId: 'leg_swings', prescription: '10 each way' },
-        { exerciseId: 'deep_squat_hold', prescription: '30s × 2' },
-      ],
+      "mobility": [
+        {
+          "exerciseId": "hip_switches_9090",
+          "prescription": "8/side",
+          "cue": "Sit tall, rotate hip capsules smoothly without hands."
+        },
+        {
+          "exerciseId": "worlds_greatest_stretch",
+          "prescription": "5/side",
+          "cue": "Lunge deep, drop elbow to instep, open wide to sky."
+        },
+        {
+          "exerciseId": "cossack_squat",
+          "prescription": "6/side",
+          "cue": "Sit deep into one hip, trailing heel down with toes up."
+        },
+        {
+          "exerciseId": "deep_squat_hold",
+          "prescription": "45s × 2",
+          "cue": "Pry knees open with elbows, shift weight ankle to ankle."
+        }
+      ]
     },
-    evening: {
-      label: 'Rest & Recover',
-      subtitle: 'Active recovery, parasympathetic reset & tissue renewal',
-      note: 'No weights today. 20 min easy skipping or a walk, then the mobility flow.',
-      groups: [],
-    },
-  },
+    "evening": {
+      "label": "Rest & Deep Structural Restoration",
+      "subtitle": "Active recovery, parasympathetic reset, fascia release & tissue renewal",
+      "note": "No heavy weights today. 15–20 minutes of easy skipping or a walk, followed by the deep hip mobility cooldown below.",
+      "groups": []
+    }
+  }
 };

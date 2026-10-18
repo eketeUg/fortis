@@ -144,6 +144,17 @@
             groupTag: 'Mobility'
           });
         });
+      } else {
+        window.FORTIS_DATA.MOBILITY.forEach(m => {
+          const ex = window.FORTIS_DATA.EXERCISES[m.id] || {};
+          out.push({
+            id: m.id,
+            title: `${m.name} (Cooldown)`,
+            meta: m.reps,
+            cue: ex.cue || '',
+            groupTag: 'Mobility'
+          });
+        });
       }
     }
     return out;
@@ -394,34 +405,36 @@
     const sec = text => `<div class="section-header">${text}</div>`;
 
     if (curSession === 'am') {
+      let idx = 0;
       const skip = window.FORTIS_DATA.SKIPPING[day];
       listEl.innerHTML += sec('Skipping Cardio');
-      listEl.innerHTML += renderCard('skipping', `Skipping — ${skip[0]}`, skip[1], 'High cadence, light on balls of feet', 0, 'am');
+      listEl.innerHTML += renderCard('skipping', `Skipping — ${skip[0]}`, skip[1], 'High cadence, light on balls of feet', idx++, 'am');
 
-      listEl.innerHTML += sec('Abs Circuit');
-      window.FORTIS_DATA.ABS[day].forEach((a, j) => {
+      listEl.innerHTML += sec('Isometric & Core Priming');
+      window.FORTIS_DATA.ABS[day].forEach(a => {
         const ex = window.FORTIS_DATA.EXERCISES[a.id] || {};
-        listEl.innerHTML += renderCard(a.id, a.name, a.reps, ex.cue || '', 1 + j, 'am');
+        listEl.innerHTML += renderCard(a.id, a.name, a.reps, ex.cue || '', idx++, 'am');
       });
 
-      listEl.innerHTML += sec('Pelvic Floor & Breathing');
-      window.FORTIS_DATA.PELVIC.forEach((p, j) => {
-        listEl.innerHTML += renderCard(p.id, p.name, p.reps, p.cue, 3 + j, 'am');
+      listEl.innerHTML += sec('Pelvic Floor & Diaphragm Training');
+      window.FORTIS_DATA.PELVIC.forEach(p => {
+        listEl.innerHTML += renderCard(p.id, p.name, p.reps, p.cue, idx++, 'am');
       });
 
       listEl.innerHTML += sec('Hip Mobility Flow');
-      window.FORTIS_DATA.MOBILITY.forEach((m, j) => {
+      window.FORTIS_DATA.MOBILITY.forEach(m => {
         const ex = window.FORTIS_DATA.EXERCISES[m.id] || {};
-        listEl.innerHTML += renderCard(m.id, m.name, m.reps, ex.cue || '', 7 + j, 'am');
+        listEl.innerHTML += renderCard(m.id, m.name, m.reps, ex.cue || '', idx++, 'am');
       });
     } else {
       const eve = window.FORTIS_DATA.EVENING[day];
       if (eve.note) {
         listEl.innerHTML += `<div class="workout-note">🧘 ${eve.note}</div>`;
         listEl.innerHTML += sec('Hip Mobility Cooldown');
-        window.FORTIS_DATA.MOBILITY.forEach((m, j) => {
+        let idx = 0;
+        window.FORTIS_DATA.MOBILITY.forEach(m => {
           const ex = window.FORTIS_DATA.EXERCISES[m.id] || {};
-          listEl.innerHTML += renderCard(m.id, m.name, m.reps, ex.cue || '', j, 'pm');
+          listEl.innerHTML += renderCard(m.id, m.name, m.reps, ex.cue || '', idx++, 'pm');
         });
         return;
       }

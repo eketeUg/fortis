@@ -5,6 +5,8 @@ export type MuscleGroup =
   | 'Shoulders'
   | 'Triceps'
   | 'Biceps'
+  | 'Forearms'
+  | 'Traps'
   | 'Quads'
   | 'Hamstrings'
   | 'Glutes'
@@ -13,21 +15,35 @@ export type MuscleGroup =
   | 'Pelvic Floor'
   | 'Calves'
   | 'Cardio / Full Body'
-  | 'Hip Mobility';
+  | 'Hip Mobility'
+  | string;
 
 export interface Exercise {
   id: string;
   name: string;
   targetMuscles: MuscleGroup[];
   equipment:
-    'Dumbbells' | 'Bodyweight' | 'Jump Rope' | 'Mat / Floor' | 'Chair / Bench';
+    | 'Dumbbells'
+    | 'Bodyweight'
+    | 'Jump Rope'
+    | 'Mat / Floor'
+    | 'Chair / Bench'
+    | string;
   cue: string;
   instructions: string[];
   mistakes: string[];
   tempo?: string;
   illustrationType: string;
   defaultRepsOrTime: string;
-  category: 'cardio' | 'abs' | 'pelvic' | 'mobility' | 'strength';
+  category:
+    | 'cardio'
+    | 'abs'
+    | 'isometric'
+    | 'pelvic'
+    | 'mobility'
+    | 'strength'
+    | 'athletic'
+    | string;
 }
 
 export interface WorkoutSetItem {

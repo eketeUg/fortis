@@ -66,41 +66,81 @@
 
   // WAT (West Africa Time, Africa/Lagos = UTC+1) Time Helpers
   function getWatDateString() {
-    return new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Africa/Lagos',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).format(new Date());
+    try {
+      return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Africa/Lagos',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).format(new Date());
+    } catch (e) {
+      const now = new Date();
+      const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const watDate = new Date(utc + 3600000);
+      return watDate.toISOString().slice(0, 10);
+    }
   }
 
   function getWatWeekday() {
-    return new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Africa/Lagos',
-      weekday: 'short'
-    }).format(new Date());
+    try {
+      return new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Africa/Lagos',
+        weekday: 'short'
+      }).format(new Date());
+    } catch (e) {
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      return days[new Date().getDay()];
+    }
   }
 
   function getWatHour() {
-    const hourStr = new Intl.DateTimeFormat('en-GB', {
-      timeZone: 'Africa/Lagos',
-      hour: 'numeric',
-      hour12: false
-    }).format(new Date());
-    return parseInt(hourStr, 10) || 10;
+    try {
+      const hourStr = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Africa/Lagos',
+        hour: 'numeric',
+        hour12: false
+      }).format(new Date());
+      const parsed = parseInt(hourStr, 10);
+      if (!isNaN(parsed)) return parsed;
+    } catch (e) {}
+    const now = new Date();
+    const utcHours = now.getUTCHours();
+    return (utcHours + 1) % 24; // UTC+1 WAT
   }
 
   function getWatDayIndex() {
-    const weekday = getWatWeekday();
-    const map = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
-    return map[weekday] ?? 0;
+    try {
+      const raw = getWatWeekday();
+      const clean = raw.replace(/[^a-zA-Z]/g, '').slice(0, 3);
+      const map = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+      if (clean in map) return map[clean];
+    } catch (e) {}
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const watDate = new Date(utc + 3600000); // UTC+1
+    const jsDay = watDate.getDay(); // 0 is Sun, 1 is Mon...
+    return jsDay === 0 ? 6 : jsDay - 1;
   }
 
   // 2. State & Keys
-  const DAYS = window.FORTIS_DATA.DAYS;
-  const FULL_DAYS = window.FORTIS_DATA.FULL_DAYS;
+  const DAYS = (window.FORTIS_DATA && window.FORTIS_DATA.DAYS) || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const FULL_DAYS_MAP = {
+    Mon: 'Monday',
+    Tue: 'Tuesday',
+    Wed: 'Wednesday',
+    Thu: 'Thursday',
+    Fri: 'Friday',
+    Sat: 'Saturday',
+    Sun: 'Sunday'
+  };
+  const FULL_DAYS = (window.FORTIS_DATA && window.FORTIS_DATA.FULL_DAYS) || [
+    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+  ];
 
   let curDay = getWatDayIndex();
+  if (typeof curDay !== 'number' || curDay < 0 || curDay > 6 || isNaN(curDay)) {
+    curDay = 0;
+  }
   let defaultSession = getWatHour() >= 13 ? 'pm' : 'am';
   let curSession = urlParams.get('session') ? (urlParams.get('session') === 'pm' ? 'pm' : 'am') : defaultSession;
   let activeTab = urlParams.get('tab') || 'workouts';
@@ -122,11 +162,9 @@
 
   function getWeekKey() {
     const todayWat = getWatDateString();
-    const weekday = getWatWeekday();
-    const map = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
-    const offset = map[weekday] ?? 0;
+    const dayIdx = (typeof curDay === 'number' && curDay >= 0 && curDay < 7) ? curDay : getWatDayIndex();
     const d = new Date(todayWat + 'T12:00:00Z');
-    d.setUTCDate(d.getUTCDate() - offset);
+    d.setUTCDate(d.getUTCDate() - dayIdx);
     return d.toISOString().slice(0, 10);
   }
 
@@ -136,31 +174,36 @@
 
   function getSessionItems(day, session) {
     const out = [];
+    if (!window.FORTIS_DATA) return out;
+
     if (session === 'am') {
-      const skip = window.FORTIS_DATA.SKIPPING[day];
+      const skip = (window.FORTIS_DATA.SKIPPING && window.FORTIS_DATA.SKIPPING[day]) || ['1200 Skips (EMOM Pace)', '12–15 mins continuous'];
       out.push({
         id: 'skipping',
         title: `Skipping — ${skip[0]}`,
         meta: skip[1],
         cue: 'High cadence, turn rope from wrists, light on feet.'
       });
-      window.FORTIS_DATA.ABS[day].forEach(a => {
-        const ex = window.FORTIS_DATA.EXERCISES[a.id] || {};
+      const absList = (window.FORTIS_DATA.ABS && window.FORTIS_DATA.ABS[day]) || [];
+      absList.forEach(a => {
+        const ex = (window.FORTIS_DATA.EXERCISES && window.FORTIS_DATA.EXERCISES[a.id]) || {};
         out.push({ id: a.id, title: a.name, meta: a.reps, cue: ex.cue || '' });
       });
-      window.FORTIS_DATA.PELVIC.forEach(p => {
+      const pelvicList = window.FORTIS_DATA.PELVIC || [];
+      pelvicList.forEach(p => {
         out.push({ id: p.id, title: p.name, meta: p.reps, cue: p.cue });
       });
-      window.FORTIS_DATA.MOBILITY.forEach(m => {
-        const ex = window.FORTIS_DATA.EXERCISES[m.id] || {};
+      const mobilityList = window.FORTIS_DATA.MOBILITY || [];
+      mobilityList.forEach(m => {
+        const ex = (window.FORTIS_DATA.EXERCISES && window.FORTIS_DATA.EXERCISES[m.id]) || {};
         out.push({ id: m.id, title: m.name, meta: m.reps, cue: ex.cue || '' });
       });
     } else {
-      const eve = window.FORTIS_DATA.EVENING[day];
+      const eve = (window.FORTIS_DATA.EVENING && window.FORTIS_DATA.EVENING[day]) || { groups: [] };
       if (eve.groups && eve.groups.length > 0) {
         eve.groups.forEach(group => {
-          group.items.forEach(item => {
-            const ex = window.FORTIS_DATA.EXERCISES[item.id] || {};
+          (group.items || []).forEach(item => {
+            const ex = (window.FORTIS_DATA.EXERCISES && window.FORTIS_DATA.EXERCISES[item.id]) || {};
             out.push({
               id: item.id,
               title: item.name,
@@ -170,28 +213,18 @@
             });
           });
         });
-        window.FORTIS_DATA.MOBILITY.forEach(m => {
-          const ex = window.FORTIS_DATA.EXERCISES[m.id] || {};
-          out.push({
-            id: m.id,
-            title: `${m.name} (Cooldown)`,
-            meta: m.reps,
-            cue: ex.cue || '',
-            groupTag: 'Mobility'
-          });
-        });
-      } else {
-        window.FORTIS_DATA.MOBILITY.forEach(m => {
-          const ex = window.FORTIS_DATA.EXERCISES[m.id] || {};
-          out.push({
-            id: m.id,
-            title: `${m.name} (Cooldown)`,
-            meta: m.reps,
-            cue: ex.cue || '',
-            groupTag: 'Mobility'
-          });
-        });
       }
+      const mobilityList = window.FORTIS_DATA.MOBILITY || [];
+      mobilityList.forEach(m => {
+        const ex = (window.FORTIS_DATA.EXERCISES && window.FORTIS_DATA.EXERCISES[m.id]) || {};
+        out.push({
+          id: m.id,
+          title: `${m.name} (Cooldown)`,
+          meta: m.reps,
+          cue: ex.cue || '',
+          groupTag: 'Mobility'
+        });
+      });
     }
     return out;
   }
@@ -297,7 +330,7 @@
   }
 
   // Toggle item completion
-  window.toggleItem = function (k) {
+  function toggleItem(k) {
     triggerHaptic('medium');
     if (localStorage.getItem(k)) {
       localStorage.removeItem(k);
@@ -308,24 +341,27 @@
     renderWorkoutsView();
     renderConsistencyView();
     syncToServer();
-  };
+  }
+  window.toggleItem = toggleItem;
 
   // Switch Day
-  window.selectDay = function (index) {
+  function selectDay(index) {
     triggerHaptic('selection');
     curDay = index;
     renderWorkoutsView();
-  };
+  }
+  window.selectDay = selectDay;
 
   // Switch Session
-  window.selectSession = function (session) {
+  function selectSession(session) {
     triggerHaptic('selection');
     curSession = session;
     renderWorkoutsView();
-  };
+  }
+  window.selectSession = selectSession;
 
   // Tab Switcher (Workouts | Weight | Consistency)
-  window.switchTab = function (tabName) {
+  function switchTab(tabName) {
     triggerHaptic('selection');
     activeTab = tabName;
 
@@ -350,16 +386,17 @@
     } else if (tabName === 'consistency') {
       renderConsistencyView();
     }
-  };
+  }
+  window.switchTab = switchTab;
 
   // ----------------------------------------------------
   // 3. WORKOUTS VIEW
   // ----------------------------------------------------
   function renderWorkoutsView() {
-    const day = DAYS[curDay];
+    const day = DAYS[curDay] || 'Mon';
     const totalWeekly = getTotalWeeklyItems();
     const completedWeekly = getCompletedCount();
-    const percent = Math.min(100, Math.round((completedWeekly / totalWeekly) * 100));
+    const percent = totalWeekly > 0 ? Math.min(100, Math.round((completedWeekly / totalWeekly) * 100)) : 0;
 
     // Update Progress Bar
     const bar = document.getElementById('progressBar');
@@ -370,7 +407,8 @@
 
     const title = document.getElementById('sessionTitle');
     if (title) {
-      title.textContent = `${FULL_DAYS[day].toUpperCase()} — ${curSession === 'am' ? 'MORNING CARDIO & CORE' : 'EVENING STRENGTH'}`;
+      const fullDay = FULL_DAYS_MAP[day] || (Array.isArray(FULL_DAYS) ? FULL_DAYS[curDay] : day) || day;
+      title.textContent = `${fullDay.toUpperCase()} — ${curSession === 'am' ? 'MORNING CARDIO & CORE' : 'EVENING STRENGTH'}`;
     }
 
     // Days nav buttons
@@ -413,7 +451,7 @@
     const banner = document.getElementById('sessionBanner');
     if (banner) {
       if (curSession === 'am') {
-        const skip = window.FORTIS_DATA.SKIPPING[day];
+        const skip = (window.FORTIS_DATA.SKIPPING && window.FORTIS_DATA.SKIPPING[day]) || ['1200 Skips (EMOM Pace)', '12–15 mins continuous'];
         banner.innerHTML = `
           <div class="banner-header">
             <span class="banner-title">🌅 Cardio & Core Priming</span>
@@ -422,11 +460,12 @@
           <div class="banner-sub">Skipping cardio intervals, anti-rotation core circuit, pelvic diaphragm work, and hip mobility flow.</div>
         `;
       } else {
-        const eve = window.FORTIS_DATA.EVENING[day];
+        const eve = (window.FORTIS_DATA.EVENING && window.FORTIS_DATA.EVENING[day]) || { label: 'Evening Strength', groups: [] };
+        const isRestDay = !eve.groups || eve.groups.length === 0;
         banner.innerHTML = `
           <div class="banner-header">
-            <span class="banner-title">${eve.label}</span>
-            <span class="banner-pill">Heavy Resistance</span>
+            <span class="banner-title">${eve.label || 'Evening Strength'}</span>
+            <span class="banner-pill">${isRestDay ? 'Active Recovery' : 'Heavy Resistance'}</span>
           </div>
           <div class="banner-sub">${eve.note || 'Full-body dumbbell supersets with controlled tempos. Tap any exercise for muscle breakdowns and built-in timers.'}</div>
         `;
@@ -442,34 +481,40 @@
 
     if (curSession === 'am') {
       let idx = 0;
-      const skip = window.FORTIS_DATA.SKIPPING[day];
+      const skip = (window.FORTIS_DATA.SKIPPING && window.FORTIS_DATA.SKIPPING[day]) || ['1200 Skips (EMOM Pace)', '12–15 mins continuous'];
       listEl.innerHTML += sec('Skipping Cardio');
       listEl.innerHTML += renderCard('skipping', `Skipping — ${skip[0]}`, skip[1], 'High cadence, light on balls of feet', idx++, 'am');
 
       listEl.innerHTML += sec('Isometric & Core Priming');
-      window.FORTIS_DATA.ABS[day].forEach(a => {
-        const ex = window.FORTIS_DATA.EXERCISES[a.id] || {};
+      const absList = (window.FORTIS_DATA.ABS && window.FORTIS_DATA.ABS[day]) || [];
+      absList.forEach(a => {
+        const ex = (window.FORTIS_DATA.EXERCISES && window.FORTIS_DATA.EXERCISES[a.id]) || {};
         listEl.innerHTML += renderCard(a.id, a.name, a.reps, ex.cue || '', idx++, 'am');
       });
 
       listEl.innerHTML += sec('Pelvic Floor & Diaphragm Training');
-      window.FORTIS_DATA.PELVIC.forEach(p => {
+      const pelvicList = window.FORTIS_DATA.PELVIC || [];
+      pelvicList.forEach(p => {
         listEl.innerHTML += renderCard(p.id, p.name, p.reps, p.cue, idx++, 'am');
       });
 
       listEl.innerHTML += sec('Hip Mobility Flow');
-      window.FORTIS_DATA.MOBILITY.forEach(m => {
-        const ex = window.FORTIS_DATA.EXERCISES[m.id] || {};
+      const mobilityList = window.FORTIS_DATA.MOBILITY || [];
+      mobilityList.forEach(m => {
+        const ex = (window.FORTIS_DATA.EXERCISES && window.FORTIS_DATA.EXERCISES[m.id]) || {};
         listEl.innerHTML += renderCard(m.id, m.name, m.reps, ex.cue || '', idx++, 'am');
       });
     } else {
-      const eve = window.FORTIS_DATA.EVENING[day];
-      if (eve.note) {
-        listEl.innerHTML += `<div class="workout-note">🧘 ${eve.note}</div>`;
+      const eve = (window.FORTIS_DATA.EVENING && window.FORTIS_DATA.EVENING[day]) || { label: 'Evening Workout', groups: [] };
+      if (!eve.groups || eve.groups.length === 0) {
+        if (eve.note) {
+          listEl.innerHTML += `<div class="workout-note">🧘 ${eve.note}</div>`;
+        }
         listEl.innerHTML += sec('Hip Mobility Cooldown');
         let idx = 0;
-        window.FORTIS_DATA.MOBILITY.forEach(m => {
-          const ex = window.FORTIS_DATA.EXERCISES[m.id] || {};
+        const mobilityList = window.FORTIS_DATA.MOBILITY || [];
+        mobilityList.forEach(m => {
+          const ex = (window.FORTIS_DATA.EXERCISES && window.FORTIS_DATA.EXERCISES[m.id]) || {};
           listEl.innerHTML += renderCard(m.id, m.name, m.reps, ex.cue || '', idx++, 'pm');
         });
         return;
@@ -477,10 +522,10 @@
 
       listEl.innerHTML += sec(eve.label);
       let idx = 0;
-      eve.groups.forEach(group => {
+      (eve.groups || []).forEach(group => {
         listEl.innerHTML += `<div class="superset-tag">⚡ ${group.tag} — ${group.rest}</div>`;
-        group.items.forEach(item => {
-          const ex = window.FORTIS_DATA.EXERCISES[item.id] || {};
+        (group.items || []).forEach(item => {
+          const ex = (window.FORTIS_DATA.EXERCISES && window.FORTIS_DATA.EXERCISES[item.id]) || {};
           listEl.innerHTML += renderCard(item.id, item.name, item.reps, ex.cue || '', idx++, 'pm');
         });
       });
@@ -490,8 +535,9 @@
       }
 
       listEl.innerHTML += sec('Hip Mobility Cooldown');
-      window.FORTIS_DATA.MOBILITY.forEach(m => {
-        const ex = window.FORTIS_DATA.EXERCISES[m.id] || {};
+      const mobilityList = window.FORTIS_DATA.MOBILITY || [];
+      mobilityList.forEach(m => {
+        const ex = (window.FORTIS_DATA.EXERCISES && window.FORTIS_DATA.EXERCISES[m.id]) || {};
         listEl.innerHTML += renderCard(m.id, m.name, m.reps, ex.cue || '', idx++, 'pm');
       });
     }

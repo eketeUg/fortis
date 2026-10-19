@@ -23,8 +23,8 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Install tzdata for West Africa Time (Africa/Lagos / WAT = UTC+1) and ffmpeg for GIF conversion
-RUN apk add --no-cache tzdata ffmpeg
+# Install tzdata for West Africa Time (Africa/Lagos / WAT = UTC+1), ffmpeg for GIF conversion, and su-exec
+RUN apk add --no-cache tzdata ffmpeg su-exec
 ENV TZ=Africa/Lagos
 ENV NODE_ENV=production
 ENV PORT=3005
@@ -35,12 +35,15 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/public ./public
 
-# Ensure local data fallback directory and exercise assets directory exist and have proper permissions
-RUN mkdir -p .data public/assets/exercises && chown -R node:node /app
+# Copy entrypoint script and ensure it is executable
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-USER node
+# Ensure directories exist and have baseline permissions
+RUN mkdir -p .data public/assets/exercises && chown -R node:node /app
 
 EXPOSE 3005
 
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["node", "dist/main.js"]
 

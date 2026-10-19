@@ -8,6 +8,7 @@ import { ClientRequest } from 'http';
 import * as https from 'https';
 import { exec } from 'child_process';
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
 import { ProgressService } from '../progress/progress.service';
 import { WorkoutService } from '../workout/workout.service';
@@ -626,7 +627,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       const telegramFilePath = fileInfo.result.file_path;
       const downloadUrl = `https://api.telegram.org/file/bot${this.botToken}/${telegramFilePath}`;
 
-      // 2. Ensure directories exist
+      // 2. Ensure directories exist and verify permissions
       const exercisesDir = path.resolve(
         process.cwd(),
         'public',
@@ -634,16 +635,23 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
         'exercises',
       );
       if (!fs.existsSync(exercisesDir)) {
-        fs.mkdirSync(exercisesDir, { recursive: true });
+        try {
+          fs.mkdirSync(exercisesDir, { recursive: true, mode: 0o777 });
+        } catch {}
       }
 
+      // Download temp files to OS temp directory (world-writable /tmp)
       const tempVideoPath = path.join(
-        exercisesDir,
-        `temp_${Date.now()}_${fileId.slice(-6)}.mp4`,
+        os.tmpdir(),
+        `temp_vid_${Date.now()}_${fileId.slice(-6)}.mp4`,
+      );
+      const tempGifPath = path.join(
+        os.tmpdir(),
+        `temp_gif_${Date.now()}_${fileId.slice(-6)}.gif`,
       );
       const targetGifPath = path.join(exercisesDir, `${exercise.id}.gif`);
 
-      // 3. Download the video file
+      // 3. Download the video file to /tmp
       const downloadRes = await fetch(downloadUrl);
       if (!downloadRes.ok) {
         throw new Error(`Failed to download video: ${downloadRes.statusText}`);
@@ -651,10 +659,10 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       const arrayBuffer = await downloadRes.arrayBuffer();
       await fs.promises.writeFile(tempVideoPath, Buffer.from(arrayBuffer));
 
-      // 4. Run FFmpeg to convert to looping animated GIF
+      // 4. Run FFmpeg to convert to looping animated GIF in /tmp
       await new Promise<void>((resolve, reject) => {
         // Limit to 8 seconds, 12 fps, 360px width with two-pass color palette
-        const ffmpegCmd = `ffmpeg -y -i "${tempVideoPath}" -t 8 -vf "fps=12,scale=360:-2:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer" "${targetGifPath}"`;
+        const ffmpegCmd = `ffmpeg -y -i "${tempVideoPath}" -t 8 -vf "fps=12,scale=360:-2:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer" "${tempGifPath}"`;
         exec(ffmpegCmd, (err, stdout, stderr) => {
           if (err) {
             this.logger.error(
@@ -668,12 +676,34 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
         });
       });
 
-      // 5. Clean up temporary input file
+      // 5. Clean up temporary video file
       try {
         if (fs.existsSync(tempVideoPath)) {
           fs.unlinkSync(tempVideoPath);
         }
       } catch {}
+
+      // 6. Copy generated GIF to public assets folder
+      try {
+        await fs.promises.copyFile(tempGifPath, targetGifPath);
+        await fs.promises.chmod(targetGifPath, 0o666).catch(() => {});
+      } catch (err: any) {
+        this.logger.error(
+          `Permission error saving to ${targetGifPath}: ${err.message}`,
+        );
+        if (err.code === 'EACCES') {
+          throw new Error(
+            `Permission denied saving to ${targetGifPath}.\n\nPlease run this on your VPS terminal:\n\`chmod -R 777 ./public/assets/exercises\``,
+          );
+        }
+        throw err;
+      } finally {
+        try {
+          if (fs.existsSync(tempGifPath)) {
+            fs.unlinkSync(tempGifPath);
+          }
+        } catch {}
+      }
 
       // Delete status progress message
       if (statusMsgId) {

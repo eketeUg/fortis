@@ -1290,6 +1290,179 @@ export const EXERCISE_DATABASE: Record<string, Exercise> = {
     "illustrationType": "glute_bridge",
     "defaultRepsOrTime": "3 × 15 reps",
     "category": "strength"
+  },
+  "dumbbell_flys": {
+    "id": "dumbbell_flys",
+    "name": "Dumbbell Floor Flys",
+    "targetMuscles": [
+      "Chest",
+      "Shoulders"
+    ],
+    "equipment": "Dumbbells / Floor",
+    "cue": "Maintain a soft elbow bend; let triceps lightly touch the floor, then hug a giant barrel to squeeze inner pecs.",
+    "instructions": [
+      "Lie supine on the floor with knees bent and feet flat, holding dumbbells directly over your chest with palms facing each other.",
+      "Lock a soft 15-degree bend in your elbows and slowly lower the dumbbells outward in a wide, sweeping arc.",
+      "Lower until the backs of your upper arms gently contact the floor, enjoying the deep chest expansion.",
+      "Engage your pecs to pull the dumbbells back up along the same arc, powerfully squeezing your inner chest at the top."
+    ],
+    "mistakes": [
+      "Straightening arms completely, causing excessive strain on shoulder joints.",
+      "Bouncing elbows off the floor instead of a controlled touch.",
+      "Arching lower back off the floor."
+    ],
+    "illustrationType": "floor_press",
+    "defaultRepsOrTime": "3 × 12 reps",
+    "category": "strength"
+  },
+  "dumbbell_low_to_high": {
+    "id": "dumbbell_low_to_high",
+    "name": "Dumbbell Low-to-High Chest Press",
+    "targetMuscles": [
+      "Chest",
+      "Shoulders"
+    ],
+    "equipment": "Dumbbells",
+    "cue": "Scoop dumbbells upward and inward from hip height to eye level, contracting the upper clavicular chest shelf.",
+    "instructions": [
+      "Stand tall with an athletic shoulder-width stance, holding dumbbells by your hips with palms angled slightly upward.",
+      "Brace your core and drive the dumbbells up and inward in a smooth scooping arc toward eye level.",
+      "Meet the dumbbells together at clavicle height and squeeze your upper chest aggressively for a full second.",
+      "Lower under control over 2 seconds back to the starting position."
+    ],
+    "mistakes": [
+      "Swinging your torso or hyperextending your spine to create momentum.",
+      "Shrugging your traps up toward your ears.",
+      "Letting elbows flare out excessively."
+    ],
+    "illustrationType": "arnold_press",
+    "defaultRepsOrTime": "3 × 12 reps",
+    "category": "strength"
+  },
+  "dumbbell_pullover": {
+    "id": "dumbbell_pullover",
+    "name": "Dumbbell Floor Pullover",
+    "targetMuscles": [
+      "Chest",
+      "Lats",
+      "Core"
+    ],
+    "equipment": "Dumbbell / Floor",
+    "cue": "Keep a fixed slight elbow bend; lower dumbbell behind head for full chest/ribcage expansion, then pull through the pecs.",
+    "instructions": [
+      "Lie flat on the floor with knees bent and feet planted. Cup both hands under the top weight plate of a single dumbbell over your chest.",
+      "With a fixed, slight bend in your elbows, slowly lower the dumbbell backward over your head in an arc.",
+      "Lower until the dumbbell gently touches the floor behind your head, feeling a deep stretch across your lats and ribcage.",
+      "Contract your chest and lats to pull the dumbbell back over your chest, exhaling forcefully at the top."
+    ],
+    "mistakes": [
+      "Bending and straightening elbows like a skull crusher rather than pivoting from shoulders.",
+      "Allowing the lower back to arch excessively off the floor.",
+      "Dropping the weight too fast without eccentric tension."
+    ],
+    "illustrationType": "dead_bugs",
+    "defaultRepsOrTime": "3 × 12 reps",
+    "category": "strength"
+  },
+  "dumbbell_hammer_press": {
+    "id": "dumbbell_hammer_press",
+    "name": "Dumbbell Hammer Chest Press",
+    "targetMuscles": [
+      "Chest",
+      "Triceps",
+      "Shoulders"
+    ],
+    "equipment": "Dumbbells / Floor",
+    "cue": "Neutral palms-in grip throughout; drive straight up to overload the sternal chest while sparing rotator cuffs.",
+    "instructions": [
+      "Lie on the floor with knees bent, holding dumbbells at chest width with a neutral (hammer) grip — palms facing directly toward each other.",
+      "Keep elbows tucked at a 45-degree angle to your torso, protecting the shoulder joints.",
+      "Press the dumbbells straight up until your arms are fully extended, driving hard through the middle chest.",
+      "Lower with a 2-second eccentric until your upper arms rest flush against the floor, pausing briefly before the next rep."
+    ],
+    "mistakes": [
+      "Flaring elbows out to 90 degrees.",
+      "Bouncing elbows aggressively off the floor.",
+      "Bridging hips up to cheat the press."
+    ],
+    "illustrationType": "close_grip_press",
+    "defaultRepsOrTime": "3 × 10 reps",
+    "category": "strength"
+  },
+  "dumbbell_reverse_grip_press": {
+    "id": "dumbbell_reverse_grip_press",
+    "name": "Dumbbell Reverse-Grip Floor Press",
+    "targetMuscles": [
+      "Chest",
+      "Triceps",
+      "Shoulders"
+    ],
+    "equipment": "Dumbbells / Floor",
+    "cue": "Supinated grip with palms facing toward your face; maximizes direct motor recruitment onto the upper clavicular chest shelf.",
+    "instructions": [
+      "Lie on the floor with knees bent. Hold dumbbells over your lower ribcage with a reverse (supinated) grip — palms facing toward your face.",
+      "Keep your elbows tucked tight against your ribcage as you lower the weights until your triceps contact the floor.",
+      "Drive the dumbbells upward and slightly inward, focusing all contraction on your upper chest fibers.",
+      "Lock out smoothly at the top with a hard pectoral squeeze before lowering slowly under control."
+    ],
+    "mistakes": [
+      "Using too heavy a weight that strains the wrists; keep wrists completely straight and stacked.",
+      "Allowing elbows to flare outward away from the body.",
+      "Rushing the reps without a peak contraction."
+    ],
+    "illustrationType": "floor_press",
+    "defaultRepsOrTime": "3 × 10 reps",
+    "category": "strength"
+  },
+  "standing_calf_raise": {
+    "id": "standing_calf_raise",
+    "name": "Dumbbell Standing Calf Raise",
+    "targetMuscles": [
+      "Calves"
+    ],
+    "equipment": "Dumbbells / Ledge",
+    "cue": "Drive high through the balls of your feet, pause 2 full seconds at the peak, and take a deep 3s stretch at the bottom.",
+    "instructions": [
+      "Stand tall holding dumbbells at your sides with feet hip-width apart and toes pointing forward.",
+      "Optionally place the balls of your feet on a low step or flat weight plate to deepen the stretch.",
+      "Explode upward onto the balls of your feet as high as possible, driving straight toward the ceiling.",
+      "Hold and clamp your gastrocnemius calves with maximum force for a full 2-second peak pause.",
+      "Lower over a slow 3-second negative into a full calf stretch before driving into the next repetition."
+    ],
+    "mistakes": [
+      "Bouncing quickly through reps without holding the peak contraction.",
+      "Bending knees to generate momentum.",
+      "Rolling ankles outward instead of driving through the balls of the feet."
+    ],
+    "illustrationType": "skipping",
+    "defaultRepsOrTime": "3 × 15–20 reps",
+    "category": "strength"
+  },
+  "single_arm_row": {
+    "id": "single_arm_row",
+    "name": "Single-Arm Dumbbell Row",
+    "targetMuscles": [
+      "Back",
+      "Lats",
+      "Biceps"
+    ],
+    "equipment": "Dumbbell",
+    "cue": "Pull your elbow toward your hip pocket like pulling a lawnmower cord — lead with the elbow, not the bicep.",
+    "instructions": [
+      "Stagger your stance with one foot forward and hinge forward at your hips to a 45-degree angle, supporting your free hand on your front knee.",
+      "Hold a dumbbell in the opposite hand hanging straight down with your lat fully engaged and pre-stretched.",
+      "Initiate the pull by driving your elbow back toward your hip pocket, keeping the dumbbell close to your torso.",
+      "Squeeze your lat and upper back hard at the top of the contraction for 1 full second.",
+      "Lower under control over 2 seconds into a full hang stretch without rotating your spine."
+    ],
+    "mistakes": [
+      "Rotating and yanking the torso upward to heave the weight.",
+      "Pulling up into the armpit instead of back toward the hip.",
+      "Rounding the lower spine during the hinge."
+    ],
+    "illustrationType": "bent_over_row",
+    "defaultRepsOrTime": "3 × 10/side",
+    "category": "strength"
   }
 };
 
@@ -1392,6 +1565,26 @@ export const WEEKLY_SCHEDULE: Record<string, DayPlan> = {
           ]
         },
         {
+          "name": "Chest Isolation & Peak Squeeze",
+          "restNote": "60s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "dumbbell_flys",
+              "prescription": "3 × 12"
+            }
+          ]
+        },
+        {
+          "name": "Arm Hypertrophy & Biceps",
+          "restNote": "45s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "hammer_curls",
+              "prescription": "3 × 12"
+            }
+          ]
+        },
+        {
           "name": "Athletic Conditioning Complex",
           "restNote": "60s rest between sets (3 rounds)",
           "exercises": [
@@ -1488,7 +1681,7 @@ export const WEEKLY_SCHEDULE: Record<string, DayPlan> = {
           ]
         },
         {
-          "name": "Superset B (Front Squat & Rows)",
+          "name": "Superset B (Front Squat & Single-Arm Row)",
           "restNote": "Do in pairs, 60–75s rest after each pair (3 rounds)",
           "exercises": [
             {
@@ -1496,8 +1689,8 @@ export const WEEKLY_SCHEDULE: Record<string, DayPlan> = {
               "prescription": "3 × 10"
             },
             {
-              "exerciseId": "bent_over_row",
-              "prescription": "3 × 10"
+              "exerciseId": "single_arm_row",
+              "prescription": "3 × 10/side"
             }
           ]
         },
@@ -1612,6 +1805,36 @@ export const WEEKLY_SCHEDULE: Record<string, DayPlan> = {
           ]
         },
         {
+          "name": "Chest Expansion & Pullover",
+          "restNote": "60s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "dumbbell_pullover",
+              "prescription": "3 × 12"
+            }
+          ]
+        },
+        {
+          "name": "Rear Delts & Upper Back Density",
+          "restNote": "45s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "rear_delt_fly",
+              "prescription": "3 × 15"
+            }
+          ]
+        },
+        {
+          "name": "Standing Calf Hypertrophy",
+          "restNote": "45s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "standing_calf_raise",
+              "prescription": "3 × 15–20"
+            }
+          ]
+        },
+        {
           "name": "Athletic Rotational Core",
           "restNote": "45s rest between sets (3 rounds)",
           "exercises": [
@@ -1722,6 +1945,36 @@ export const WEEKLY_SCHEDULE: Record<string, DayPlan> = {
           ]
         },
         {
+          "name": "Upper Clavicular Chest Shelf",
+          "restNote": "60s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "dumbbell_reverse_grip_press",
+              "prescription": "3 × 10"
+            }
+          ]
+        },
+        {
+          "name": "Traps & Upright Shoulder Pull",
+          "restNote": "45s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "upright_row",
+              "prescription": "3 × 12"
+            }
+          ]
+        },
+        {
+          "name": "Bicep Peak & Grip Lockout",
+          "restNote": "45s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "hammer_curls",
+              "prescription": "3 × 12"
+            }
+          ]
+        },
+        {
           "name": "Explosive Athletic Snatch Complex",
           "restNote": "60s rest between sets (3 rounds)",
           "exercises": [
@@ -1818,16 +2071,46 @@ export const WEEKLY_SCHEDULE: Record<string, DayPlan> = {
           ]
         },
         {
-          "name": "Superset B (Chest & Lunges)",
+          "name": "Superset B (Hammer Chest & Lunges)",
           "restNote": "Do in pairs, 60–75s rest after each pair (3 rounds)",
           "exercises": [
             {
-              "exerciseId": "floor_press",
+              "exerciseId": "dumbbell_hammer_press",
               "prescription": "3 × 10"
             },
             {
               "exerciseId": "reverse_lunges",
               "prescription": "3 × 10/side"
+            }
+          ]
+        },
+        {
+          "name": "Standing Clavicular Chest Scoop",
+          "restNote": "60s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "dumbbell_low_to_high",
+              "prescription": "3 × 12"
+            }
+          ]
+        },
+        {
+          "name": "Posterior Chain Glute Drive",
+          "restNote": "60s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "glute_bridge",
+              "prescription": "3 × 15"
+            }
+          ]
+        },
+        {
+          "name": "Standing Calf Burnout",
+          "restNote": "45s rest between sets (3 rounds)",
+          "exercises": [
+            {
+              "exerciseId": "standing_calf_raise",
+              "prescription": "3 × 20"
             }
           ]
         },

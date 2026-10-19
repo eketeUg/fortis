@@ -18,6 +18,7 @@ services:
       - "127.0.0.1:3005:3005"
     volumes:
       - fortis-data:/app/.data
+      - ./public/assets/exercises:/app/public/assets/exercises
 
 volumes:
   fortis-data:

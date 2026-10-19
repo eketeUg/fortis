@@ -40,4 +40,41 @@ export class WorkoutService {
     }
     return exercise;
   }
+
+  findExerciseByQuery(query: string): Exercise | null {
+    if (!query) return null;
+    const cleanQuery = query.toLowerCase().trim();
+    const q = cleanQuery.replace(/[^a-z0-9]/g, '');
+    if (!q) return null;
+
+    // 1. Exact ID
+    const exactId = cleanQuery.replace(/\s+/g, '_');
+    if (EXERCISE_DATABASE[exactId]) return EXERCISE_DATABASE[exactId];
+
+    // 2. Exact clean ID
+    for (const [id, ex] of Object.entries(EXERCISE_DATABASE)) {
+      if (id.replace(/[^a-z0-9]/g, '') === q) return ex;
+    }
+
+    // 3. Exact clean Name
+    for (const ex of Object.values(EXERCISE_DATABASE)) {
+      if (ex.name.toLowerCase().replace(/[^a-z0-9]/g, '') === q) return ex;
+    }
+
+    // 4. Fuzzy containment
+    for (const [id, ex] of Object.entries(EXERCISE_DATABASE)) {
+      const cleanName = ex.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const cleanId = id.replace(/[^a-z0-9]/g, '');
+      if (
+        cleanName.includes(q) ||
+        q.includes(cleanName) ||
+        cleanId.includes(q) ||
+        q.includes(cleanId)
+      ) {
+        return ex;
+      }
+    }
+
+    return null;
+  }
 }

@@ -23,8 +23,8 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Install tzdata for West Africa Time (Africa/Lagos / WAT = UTC+1)
-RUN apk add --no-cache tzdata
+# Install tzdata for West Africa Time (Africa/Lagos / WAT = UTC+1) and ffmpeg for GIF conversion
+RUN apk add --no-cache tzdata ffmpeg
 ENV TZ=Africa/Lagos
 ENV NODE_ENV=production
 ENV PORT=3005
@@ -35,8 +35,8 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/public ./public
 
-# Ensure local data fallback directory exists and has proper permissions
-RUN mkdir -p .data && chown -R node:node /app
+# Ensure local data fallback directory and exercise assets directory exist and have proper permissions
+RUN mkdir -p .data public/assets/exercises && chown -R node:node /app
 
 USER node
 

@@ -6,6 +6,9 @@ import {
 } from '@nestjs/common';
 import { ClientRequest } from 'http';
 import * as https from 'https';
+import { exec } from 'child_process';
+import * as fs from 'fs';
+import * as path from 'path';
 import { ProgressService } from '../progress/progress.service';
 import { WorkoutService } from '../workout/workout.service';
 import { TelegramUpdate } from './bot.types';
@@ -21,6 +24,10 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
   private lastUpdateId = 0;
   private reminderInterval: NodeJS.Timeout | null = null;
   private retryTimeout: NodeJS.Timeout | null = null;
+  private pendingVideoUploads = new Map<
+    string,
+    { fileId: string; timestamp: number }
+  >();
 
   constructor(
     private readonly workoutService: WorkoutService,
@@ -292,22 +299,73 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    // 2. Handle Text Messages
-    if (!update.message || !update.message.text) return;
+    const message = update.message;
+    if (!message) return;
 
-    const chatId = update.message.chat.id;
-    const text = update.message.text.trim();
-    const user = update.message.from;
+    const chatId = message.chat.id;
+    const user = message.from;
     const userId = user ? String(user.id) : String(chatId);
     const firstName = user?.first_name || 'Warrior';
     const username = user?.username ? `@${user.username}` : undefined;
 
+    // Save Chat ID for automated reminders
+    this.progressService.saveChatId(userId, chatId, firstName, username);
+
+    // 2. Handle Video / Video Note / Video Document Messages
+    const videoFileId =
+      message.video?.file_id ||
+      message.video_note?.file_id ||
+      (message.document && message.document.mime_type?.startsWith('video/')
+        ? message.document.file_id
+        : null);
+
+    if (videoFileId) {
+      await this.handleIncomingVideo(
+        chatId,
+        userId,
+        firstName,
+        videoFileId,
+        message.caption,
+      );
+      return;
+    }
+
+    // 3. Handle Text Messages & Command Routing
+    if (!message.text) return;
+
+    const text = message.text.trim();
     this.logger.log(
       `💬 Command received: "${text}" from ${firstName} (chatId: ${chatId})`,
     );
 
-    // Save Chat ID for automated reminders
-    this.progressService.saveChatId(userId, chatId, firstName, username);
+    // Check if user is replying to a video or answering a pending video upload
+    const replyVideoFileId =
+      message.reply_to_message?.video?.file_id ||
+      message.reply_to_message?.video_note?.file_id ||
+      (message.reply_to_message?.document?.mime_type?.startsWith('video/')
+        ? message.reply_to_message.document.file_id
+        : null);
+
+    const pending = this.pendingVideoUploads.get(userId);
+    const targetVideoFileId =
+      replyVideoFileId ||
+      (pending && Date.now() - pending.timestamp < 300000
+        ? pending.fileId
+        : null);
+
+    if (targetVideoFileId && !text.startsWith('/')) {
+      const matched = this.workoutService.findExerciseByQuery(text);
+      if (matched) {
+        this.pendingVideoUploads.delete(userId);
+        await this.convertVideoToExerciseGif(
+          chatId,
+          userId,
+          targetVideoFileId,
+          matched,
+        );
+        return;
+      }
+    }
 
     if (text.startsWith('/start')) {
       await this.sendWelcomeMessage(chatId, firstName, userId);
@@ -326,6 +384,26 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       await this.sendReminderSettings(chatId, userId);
     } else if (text.startsWith('/testreminder')) {
       await this.sendTestReminder(chatId, userId);
+    } else if (
+      text.startsWith('/setgif') ||
+      text.startsWith('/gif') ||
+      text.startsWith('/uploadgif')
+    ) {
+      const query = text.replace(/^\/(setgif|gif|uploadgif)\s*/i, '').trim();
+      if (targetVideoFileId && query) {
+        const matched = this.workoutService.findExerciseByQuery(query);
+        if (matched) {
+          this.pendingVideoUploads.delete(userId);
+          await this.convertVideoToExerciseGif(
+            chatId,
+            userId,
+            targetVideoFileId,
+            matched,
+          );
+          return;
+        }
+      }
+      await this.sendSetGifHelp(chatId, query);
     } else if (
       text.startsWith('/resetprofile') ||
       text.startsWith('/resetdata') ||
@@ -353,6 +431,36 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
 
     // Acknowledge callback
     await this.telegramApi('answerCallbackQuery', { callback_query_id: cb.id });
+
+    if (callbackData.startsWith('set_gif:')) {
+      const exerciseId = callbackData.split(':')[1];
+      const pending = this.pendingVideoUploads.get(userId);
+      if (!pending || Date.now() - pending.timestamp > 300000) {
+        await this.telegramApi('sendMessage', {
+          chat_id: chatId,
+          text: `⚠️ *Upload session expired.* Please send your exercise video again!`,
+          parse_mode: 'Markdown',
+        });
+        return;
+      }
+
+      try {
+        const exercise = this.workoutService.getExercise(exerciseId);
+        this.pendingVideoUploads.delete(userId);
+        await this.convertVideoToExerciseGif(
+          chatId,
+          userId,
+          pending.fileId,
+          exercise,
+        );
+      } catch (e: any) {
+        await this.telegramApi('sendMessage', {
+          chat_id: chatId,
+          text: `⚠️ Exercise not found: ${e.message}`,
+        });
+      }
+      return;
+    }
 
     if (callbackData.startsWith('open_local_app')) {
       const targetUserId = callbackData.split(':')[1] || userId;
@@ -406,6 +514,290 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
         },
       });
     }
+  }
+
+  // ----------------------------------------------------------------
+  // Video to Animated GIF Conversion Pipeline
+  // ----------------------------------------------------------------
+  private async handleIncomingVideo(
+    chatId: number,
+    userId: string,
+    firstName: string,
+    fileId: string,
+    caption?: string,
+  ) {
+    this.logger.log(`📹 Video received from ${firstName} (userId: ${userId})`);
+
+    // 1. Check if user provided an exercise name in caption
+    if (caption && caption.trim()) {
+      const cleanCaption = caption
+        .replace(/^\/(gif|upload|setgif)\s*/i, '')
+        .trim();
+      const matched = this.workoutService.findExerciseByQuery(cleanCaption);
+      if (matched) {
+        await this.convertVideoToExerciseGif(chatId, userId, fileId, matched);
+        return;
+      }
+    }
+
+    // 2. No caption or no match: Store pending upload and ask user to choose
+    this.pendingVideoUploads.set(userId, { fileId, timestamp: Date.now() });
+
+    // Build buttons for today's exercises as convenient 1-tap options
+    const todayPlan = this.workoutService.getTodayPlan();
+    const todayExercises: { id: string; name: string }[] = [];
+    if (todayPlan.morning?.abs) {
+      todayPlan.morning.abs.forEach((a) => {
+        try {
+          const ex = this.workoutService.getExercise(a.exerciseId);
+          if (!todayExercises.some((e) => e.id === ex.id)) {
+            todayExercises.push({ id: ex.id, name: ex.name });
+          }
+        } catch {}
+      });
+    }
+    if (todayPlan.evening?.groups) {
+      todayPlan.evening.groups.forEach((g) => {
+        g.exercises.forEach((item) => {
+          try {
+            const ex = this.workoutService.getExercise(item.exerciseId);
+            if (!todayExercises.some((e) => e.id === ex.id)) {
+              todayExercises.push({ id: ex.id, name: ex.name });
+            }
+          } catch {}
+        });
+      });
+    }
+
+    const inlineKeyboard: any[][] = [];
+    const quickPick = todayExercises.slice(0, 6);
+    for (let i = 0; i < quickPick.length; i += 2) {
+      const row: any[] = [
+        {
+          text: `🎯 ${quickPick[i].name}`,
+          callback_data: `set_gif:${quickPick[i].id}`,
+        },
+      ];
+      if (quickPick[i + 1]) {
+        row.push({
+          text: `🎯 ${quickPick[i + 1].name}`,
+          callback_data: `set_gif:${quickPick[i + 1].id}`,
+        });
+      }
+      inlineKeyboard.push(row);
+    }
+
+    await this.telegramApi('sendMessage', {
+      chat_id: chatId,
+      text:
+        `🎬 *Video Received, ${firstName}!* \n\n` +
+        `Which exercise illustration should be replaced with this demonstration?\n\n` +
+        `👉 **Option 1**: Tap one of today's exercises below.\n` +
+        `👉 **Option 2**: Reply directly to this message with any exercise name (e.g. \`goblet squat\` or \`floor press\`).`,
+      parse_mode: 'Markdown',
+      reply_markup:
+        inlineKeyboard.length > 0 ? { inline_keyboard: inlineKeyboard } : undefined,
+    });
+  }
+
+  private async convertVideoToExerciseGif(
+    chatId: number,
+    userId: string,
+    fileId: string,
+    exercise: { id: string; name: string },
+  ) {
+    let statusMsgId: number | null = null;
+    try {
+      const statusRes = await this.telegramApi('sendMessage', {
+        chat_id: chatId,
+        text: `⏳ *Processing Video...*\n\nDownloading and converting your demonstration into an optimized looping GIF for **${exercise.name}**...`,
+        parse_mode: 'Markdown',
+      });
+      if (statusRes && statusRes.result) {
+        statusMsgId = statusRes.result.message_id;
+      }
+
+      // 1. Get file path from Telegram
+      const fileInfo = await this.telegramApi('getFile', { file_id: fileId });
+      if (!fileInfo || !fileInfo.ok || !fileInfo.result?.file_path) {
+        throw new Error('Could not retrieve video path from Telegram API.');
+      }
+
+      const telegramFilePath = fileInfo.result.file_path;
+      const downloadUrl = `https://api.telegram.org/file/bot${this.botToken}/${telegramFilePath}`;
+
+      // 2. Ensure directories exist
+      const exercisesDir = path.resolve(
+        process.cwd(),
+        'public',
+        'assets',
+        'exercises',
+      );
+      if (!fs.existsSync(exercisesDir)) {
+        fs.mkdirSync(exercisesDir, { recursive: true });
+      }
+
+      const tempVideoPath = path.join(
+        exercisesDir,
+        `temp_${Date.now()}_${fileId.slice(-6)}.mp4`,
+      );
+      const targetGifPath = path.join(exercisesDir, `${exercise.id}.gif`);
+
+      // 3. Download the video file
+      const downloadRes = await fetch(downloadUrl);
+      if (!downloadRes.ok) {
+        throw new Error(`Failed to download video: ${downloadRes.statusText}`);
+      }
+      const arrayBuffer = await downloadRes.arrayBuffer();
+      await fs.promises.writeFile(tempVideoPath, Buffer.from(arrayBuffer));
+
+      // 4. Run FFmpeg to convert to looping animated GIF
+      await new Promise<void>((resolve, reject) => {
+        // Limit to 8 seconds, 12 fps, 360px width with two-pass color palette
+        const ffmpegCmd = `ffmpeg -y -i "${tempVideoPath}" -t 8 -vf "fps=12,scale=360:-2:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer" "${targetGifPath}"`;
+        exec(ffmpegCmd, (err, stdout, stderr) => {
+          if (err) {
+            this.logger.error(
+              `FFmpeg conversion failed: ${stderr || err.message}`,
+            );
+            return reject(
+              new Error(`FFmpeg conversion failed: ${stderr || err.message}`),
+            );
+          }
+          resolve();
+        });
+      });
+
+      // 5. Clean up temporary input file
+      try {
+        if (fs.existsSync(tempVideoPath)) {
+          fs.unlinkSync(tempVideoPath);
+        }
+      } catch {}
+
+      // Delete status progress message
+      if (statusMsgId) {
+        try {
+          await this.telegramApi('deleteMessage', {
+            chat_id: chatId,
+            message_id: statusMsgId,
+          });
+        } catch {}
+      }
+
+      // 6. Send the generated GIF back to chat with WebApp button
+      const webAppUrlWithUser = `${this.webAppUrl}?user_id=${userId}`;
+      const captionText =
+        `✅ *Exercise Illustration Updated!*\n\n` +
+        `**${exercise.name}** now features your live animated demonstration in your FORTIS Mini App!\n\n` +
+        `Tap below to open your training protocol and inspect your new illustration:`;
+
+      await this.sendAnimationToChat(
+        chatId,
+        targetGifPath,
+        captionText,
+        webAppUrlWithUser,
+      );
+
+      this.logger.log(
+        `🎬 Successfully converted and saved GIF for ${exercise.name} (${exercise.id}.gif)`,
+      );
+    } catch (err: any) {
+      this.logger.error(
+        `❌ Failed to convert video to GIF: ${err.message}`,
+        err.stack,
+      );
+      if (statusMsgId) {
+        try {
+          await this.telegramApi('deleteMessage', {
+            chat_id: chatId,
+            message_id: statusMsgId,
+          });
+        } catch {}
+      }
+      await this.telegramApi('sendMessage', {
+        chat_id: chatId,
+        text: `❌ *Video Conversion Failed*\n\nReason: ${err.message}\n\nPlease ensure the video is under 20MB and in a standard format (MP4, MOV, WebM).`,
+        parse_mode: 'Markdown',
+      });
+    }
+  }
+
+  private async sendAnimationToChat(
+    chatId: number,
+    gifPath: string,
+    caption: string,
+    webAppUrl: string,
+  ) {
+    try {
+      const buffer = await fs.promises.readFile(gifPath);
+      const form = new FormData();
+      form.append('chat_id', String(chatId));
+      form.append('caption', caption);
+      form.append('parse_mode', 'Markdown');
+      form.append(
+        'reply_markup',
+        JSON.stringify({
+          inline_keyboard: [
+            [
+              {
+                text: '🏋️ View in Mini App',
+                web_app: { url: webAppUrl },
+              },
+            ],
+          ],
+        }),
+      );
+      form.append(
+        'animation',
+        new Blob([buffer], { type: 'image/gif' }),
+        path.basename(gifPath),
+      );
+
+      const res = await fetch(
+        `https://api.telegram.org/bot${this.botToken}/sendAnimation`,
+        {
+          method: 'POST',
+          body: form,
+        },
+      );
+      const data: any = await res.json();
+      if (!data.ok) {
+        this.logger.warn(
+          `sendAnimation returned not ok: ${JSON.stringify(data)}`,
+        );
+        // Fallback to text message
+        await this.telegramApi('sendMessage', {
+          chat_id: chatId,
+          text: caption,
+          parse_mode: 'Markdown',
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: '🏋️ View in Mini App', web_app: { url: webAppUrl } }],
+            ],
+          },
+        });
+      }
+    } catch (e: any) {
+      this.logger.warn(`Failed to send animation: ${e.message}`);
+    }
+  }
+
+  private async sendSetGifHelp(chatId: number, query?: string) {
+    const text =
+      `🎬 *Custom Exercise Video-to-GIF Illustration*\n\n` +
+      `You can personalize your FORTIS Mini App with your own exercise demonstrations!\n\n` +
+      `*How it works:*\n` +
+      `1️⃣ Send or forward any short video or video note to this chat.\n` +
+      `2️⃣ Include the exercise name in the video caption (e.g. \`goblet squat\` or \`floor press\`).\n` +
+      `3️⃣ Or simply send the video first, then tap the exercise button or reply with its name!\n\n` +
+      `The bot will automatically download your video, optimize it with FFmpeg into a crisp looping animated GIF, and save it directly into your Mini App!`;
+
+    await this.telegramApi('sendMessage', {
+      chat_id: chatId,
+      text,
+      parse_mode: 'Markdown',
+    });
   }
 
   // Welcome Message with the requested FORTIS branding and menu options
@@ -871,6 +1263,8 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
       `/testreminder - Test the 5am/7pm reminder notification\n` +
       `/resetprofile - Wipe all your history & weight data to start fresh\n` +
       `/help - Show this guide\n\n` +
+      `🎬 *Exercise Video-to-GIF Demonstration:*\n` +
+      `Send or forward any short workout video or video note (with the exercise name in the caption or tap the inline exercise buttons). FORTIS will convert it into a smooth looping GIF and showcase it directly in your Mini App!\n\n` +
       `You can also tap the *FORTIS App* menu button in the chat anytime!`;
 
     await this.telegramApi('sendMessage', {
